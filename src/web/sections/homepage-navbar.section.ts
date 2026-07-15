@@ -30,8 +30,8 @@ export function renderHomepageNavbarSection(): string {
           <a class="text-white/85 transition-colors hover:text-white" href="/docs">API Docs</a>
           <a
             class="button ghost !h-8 !min-h-8 !rounded-full !px-3.5 !text-[13px] !font-semibold"
-            href="/login"
-          >Login</a>
+            href="/signup"
+          >Get Started</a>
         </div>
       </nav>
     </header>

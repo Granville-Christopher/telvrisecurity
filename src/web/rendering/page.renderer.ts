@@ -2,11 +2,13 @@ import { renderSiteScripts } from './site.scripts';
 import { renderAuthStyles } from './auth.styles';
 import { renderSiteStyles } from './site.styles';
 import { escapeHtml } from './html.utils';
+import { PageSeoOptions, renderPageSeoHead } from './page-seo';
 
 export interface RenderedPage {
   readonly title: string;
   readonly body: string;
   readonly includeAuthStyles?: boolean;
+  readonly seo?: PageSeoOptions;
 }
 
 export function renderPage(page: RenderedPage): string {
@@ -18,6 +20,7 @@ export function renderPage(page: RenderedPage): string {
           <meta charset="utf-8" />
           <meta name="viewport" content="width=device-width, initial-scale=1" />
           <title>${escapeHtml(page.title)}</title>
+${renderPageSeoHead(page)}
           <script src="https://cdn.tailwindcss.com"></script>
           <style>
 ${renderSiteStyles()}

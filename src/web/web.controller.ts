@@ -4,6 +4,7 @@ import { Response } from 'express';
 import { join } from 'path';
 
 import { renderPage } from './rendering/page.renderer';
+import { DEFAULT_OG_IMAGE_PATH, SITE_SEO_DESCRIPTION } from './rendering/site-metadata';
 import { renderLoginPageSections } from './sections/auth/login.sections';
 import { renderSignupPageSections } from './sections/auth/signup.sections';
 import { renderDashboardSections } from './sections/dashboard/dashboard.sections';
@@ -22,9 +23,31 @@ export class WebController {
   @Header('Content-Type', 'text/html; charset=utf-8')
   landingPage(): string {
     return renderPage({
-      title: 'Telvri Security API',
+      title: 'Telvri Security | Developer-First SIM-Swap & Mobile Identity API',
+      seo: {
+        description: SITE_SEO_DESCRIPTION,
+        canonicalPath: '/',
+        ogImagePath: DEFAULT_OG_IMAGE_PATH,
+        keywords: [
+          'SIM-swap detection API',
+          'mobile identity security',
+          'telco fraud prevention',
+          'account takeover protection',
+          'phone number risk signals',
+          'developer security API',
+          'OpenAPI identity security',
+          'wallet recovery protection',
+          'payout fraud prevention',
+          'SIM-swap check endpoint',
+        ],
+      },
       body: renderHomepageSections(),
     });
+  }
+
+  @Get('media/home.png')
+  serveHomePreviewImage(@Res() response: Response): void {
+    response.sendFile(join(__dirname, '..', 'MEDIA', 'home.png'));
   }
 
   @Get('media/logo/telvri.png')
@@ -55,6 +78,12 @@ export class WebController {
   ): string {
     return renderPage({
       title: 'Sign in | Telvri Security',
+      seo: {
+        description:
+          'Sign in to Telvri Security to manage API keys, review SIM-swap integration examples, and access your developer dashboard.',
+        canonicalPath: '/login',
+        noIndex: true,
+      },
       includeAuthStyles: true,
       body: renderLoginPageSections({
         errorMessage: errorQuery,
@@ -73,6 +102,12 @@ export class WebController {
   ): string {
     return renderPage({
       title: 'Sign up | Telvri Security',
+      seo: {
+        description:
+          'Create your Telvri Security developer account to start integrating SIM-swap checks into login recovery, payouts, and wallet protection flows.',
+        canonicalPath: '/signup',
+        noIndex: true,
+      },
       includeAuthStyles: true,
       body: renderSignupPageSections({
         errorMessage: errorQuery,
@@ -87,7 +122,13 @@ export class WebController {
   @Header('Content-Type', 'text/html; charset=utf-8')
   dashboardPage(): string {
     return renderPage({
-      title: 'Telvri Security Dashboard',
+      title: 'Developer Dashboard | Telvri Security',
+      seo: {
+        description:
+          'Telvri Security developer dashboard for API keys, SDK examples, and SIM-swap endpoint integration across JavaScript, Python, Go, and more.',
+        canonicalPath: '/dashboard',
+        noIndex: true,
+      },
       body: renderDashboardSections(),
     });
   }
