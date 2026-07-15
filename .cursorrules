@@ -1,0 +1,9 @@
+We are building a production-grade, developer-first Telco Identity Security API in NestJS and TypeScript.
+
+System guidelines for all future file edits:
+1. Strictly enforce standard NestJS modular architecture. Keep features isolated in modules with controllers, services, DTOs, guards, and providers placed in clear ownership boundaries.
+2. Do not use shortcuts, placeholder comments, or TODOs in functional code blocks. Every committed source file must be complete and executable for its purpose.
+3. Maintain strict TypeScript type-safety. Always define interfaces, classes, and explicit types for domain objects, request metadata, service returns, and injected dependencies. Avoid `any` unless there is no safer framework-compatible alternative.
+4. Add `@nestjs/swagger` decorators to every controller and DTO so the generated OpenAPI specification remains complete and developer-friendly.
+5. Use `class-validator` and `class-transformer` for strict inbound payload validation, coercion, and sanitization.
+6. Standardize API errors with NestJS HTTP exceptions and return clear, structured error payloads.
