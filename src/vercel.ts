@@ -1,21 +1,21 @@
-import express, { Request, Response } from 'express';
+import type { Request, Response } from 'express';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
 import { createNestApp } from './create-app';
 
-let server: express.Express | undefined;
+let nestApp: NestExpressApplication | undefined;
 
-async function getServer(): Promise<express.Express> {
-  if (server) {
-    return server;
+async function getNestApp(): Promise<NestExpressApplication> {
+  if (nestApp) {
+    return nestApp;
   }
 
-  const expressApp = express();
-  await createNestApp(expressApp);
-  server = expressApp;
-  return server;
+  nestApp = await createNestApp();
+  return nestApp;
 }
 
 export default async function handler(request: Request, response: Response): Promise<void> {
-  const expressServer = await getServer();
+  const app = await getNestApp();
+  const expressServer = app.getHttpAdapter().getInstance();
   expressServer(request, response);
 }
