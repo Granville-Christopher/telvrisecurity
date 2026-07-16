@@ -3,8 +3,11 @@ import { NestFactory } from '@nestjs/core';
 import { ExpressAdapter, NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Express } from 'express';
+import { join } from 'path';
 
 import { AppModule } from './app.module';
+
+const SWAGGER_UI_DIST_PATH = join(__dirname, 'swagger-ui-dist');
 
 export async function configureNestApp(app: INestApplication): Promise<void> {
   app.useGlobalPipes(
@@ -41,7 +44,10 @@ export async function configureNestApp(app: INestApplication): Promise<void> {
     .build();
 
   const document = SwaggerModule.createDocument(app, swaggerConfig);
-  SwaggerModule.setup('/docs', app, document);
+  SwaggerModule.setup('/docs', app, document, {
+    customSwaggerUiPath: SWAGGER_UI_DIST_PATH,
+    customSiteTitle: 'Telvri Security API Gateway',
+  });
   app.getHttpAdapter().get('/docs-json', (_request, response) => {
     response.json(document);
   });
