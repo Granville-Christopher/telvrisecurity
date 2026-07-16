@@ -7,3 +7,9 @@ coverage
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Generated SDK clients — reproducible via `npm run sdk:generate`.
+# Each SDK is published from its own repo (e.g. telvri-js), so the API
+# repo only tracks the generator inputs, not the generated output.
+sdks/*
+!sdks/README.md

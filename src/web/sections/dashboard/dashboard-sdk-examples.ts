@@ -20,6 +20,7 @@ export interface DashboardSdkExamples {
 
 export function buildDashboardSdkExamples(): DashboardSdkExamples {
   const apiKey = 'rt_live_test_123456789';
+  const apiBaseUrl = 'https://telvrisecurity.vercel.app';
   const npmInstall = 'npm install @telvri/security';
   const pipInstall = 'pip install telvri-security';
   const goInstall = 'go get github.com/telvri-security/telvri-go';
@@ -27,23 +28,28 @@ export function buildDashboardSdkExamples(): DashboardSdkExamples {
   const gemInstall = 'gem install telvri_security';
   const mavenInstall = 'com.telvri:security:1.0.0';
   const dotnetInstall = 'dotnet add package Telvri.Security';
-  const curlExample = `curl -X POST https://api.your-domain.com/v1/security/sim-check \\
+  const curlExample = `curl -X POST ${apiBaseUrl}/v1/security/sim-check \\
   -H "Content-Type: application/json" \\
   -H "X-API-Key: ${apiKey}" \\
   -d '{"phoneNumber":"+2348031234569","maxAgeHours":24}'`;
-  const nodeExample = `import { TelvriSecurity } from '@telvri/security';
+  const nodeExample = `import { Configuration, SIMSwapIntelligenceApi } from '@telvri/security';
 
-const client = new TelvriSecurity({
+const config = new Configuration({
+  basePath: '${apiBaseUrl}',
   apiKey: process.env.TELVRI_API_KEY,
 });
 
-const result = await client.simSwap.check({
-  phoneNumber: '+2348031234569',
-  maxAgeHours: 24,
+const api = new SIMSwapIntelligenceApi(config);
+
+const result = await api.simSwapControllerCheckSimSwap({
+  checkSimSwapDto: {
+    phoneNumber: '+2348031234569',
+    maxAgeHours: 24,
+  },
 });
 
 console.log(result);`;
-  const fetchExample = `const response = await fetch('https://api.your-domain.com/v1/security/sim-check', {
+  const fetchExample = `const response = await fetch('${apiBaseUrl}/v1/security/sim-check', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
@@ -58,16 +64,15 @@ console.log(result);`;
 const result = await response.json();
 console.log(result);`;
   const pythonExample = `import os
-from telvri_security import TelvriSecurity
+import requests
 
-client = TelvriSecurity(api_key=os.environ["TELVRI_API_KEY"])
-
-result = client.sim_swap.check(
-    phone_number="+2348031234569",
-    max_age_hours=24,
+response = requests.post(
+    "${apiBaseUrl}/v1/security/sim-check",
+    headers={"X-API-Key": os.environ["TELVRI_API_KEY"]},
+    json={"phoneNumber": "+2348031234569", "maxAgeHours": 24},
 )
 
-print(result)`;
+print(response.json())`;
   const goExample = `package main
 
 import (
@@ -91,7 +96,7 @@ func main() {
 
 	req, _ := http.NewRequest(
 		http.MethodPost,
-		"https://api.your-domain.com/v1/security/sim-check",
+		"${apiBaseUrl}/v1/security/sim-check",
 		bytes.NewReader(body),
 	)
 
@@ -113,7 +118,7 @@ $payload = json_encode([
     'maxAgeHours' => 24,
 ]);
 
-$ch = curl_init('https://api.your-domain.com/v1/security/sim-check');
+$ch = curl_init('${apiBaseUrl}/v1/security/sim-check');
 curl_setopt_array($ch, [
     CURLOPT_POST => true,
     CURLOPT_RETURNTRANSFER => true,
@@ -130,7 +135,7 @@ curl_close($ch);`;
 require 'net/http'
 require 'uri'
 
-uri = URI('https://api.your-domain.com/v1/security/sim-check')
+uri = URI('${apiBaseUrl}/v1/security/sim-check')
 request = Net::HTTP::Post.new(uri)
 request['Content-Type'] = 'application/json'
 request['X-API-Key'] = ENV.fetch('TELVRI_API_KEY')
@@ -145,7 +150,7 @@ end
 
 puts response.body`;
   const javaExample = `HttpRequest request = HttpRequest.newBuilder()
-    .uri(URI.create("https://api.your-domain.com/v1/security/sim-check"))
+    .uri(URI.create("${apiBaseUrl}/v1/security/sim-check"))
     .header("Content-Type", "application/json")
     .header("X-API-Key", System.getenv("TELVRI_API_KEY"))
     .POST(HttpRequest.BodyPublishers.ofString("""
@@ -163,7 +168,7 @@ using System.Text;
 
 using HttpClient client = new();
 
-using HttpRequestMessage request = new(HttpMethod.Post, "https://api.your-domain.com/v1/security/sim-check");
+using HttpRequestMessage request = new(HttpMethod.Post, "${apiBaseUrl}/v1/security/sim-check");
 request.Headers.Add("X-API-Key", Environment.GetEnvironmentVariable("TELVRI_API_KEY"));
 request.Content = new StringContent(
     "{\"phoneNumber\":\"+2348031234569\",\"maxAgeHours\":24}",

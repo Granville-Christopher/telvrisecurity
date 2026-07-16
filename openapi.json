@@ -1,0 +1,278 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/auth/login": {
+      "post": {
+        "description": "Accepts login credentials and redirects to the dashboard on success.",
+        "operationId": "AuthController_login",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginDto"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Redirect to dashboard after successful login."
+          },
+          "401": {
+            "description": "Invalid credentials."
+          }
+        },
+        "summary": "Authenticate a developer account",
+        "tags": [
+          "Developer Auth"
+        ]
+      }
+    },
+    "/auth/signup": {
+      "post": {
+        "description": "Registers a developer account and redirects to the dashboard on success.",
+        "operationId": "AuthController_signup",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/SignupDto"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignupDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Redirect to dashboard after successful signup."
+          },
+          "400": {
+            "description": "Validation failed or passwords do not match."
+          }
+        },
+        "summary": "Create a developer account",
+        "tags": [
+          "Developer Auth"
+        ]
+      }
+    },
+    "/v1/security/sim-check": {
+      "post": {
+        "description": "Checks a subscriber phone number against mocked telecom registry intelligence and returns whether recent SIM-swap activity is present.",
+        "operationId": "SimSwapController_checkSimSwap",
+        "parameters": [
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "description": "Developer API key. Alternative: Authorization: Bearer <KEY>.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CheckSimSwapDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "SIM-swap intelligence response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SimSwapResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request body failed validation."
+          },
+          "401": {
+            "description": "Missing, malformed, or unverified developer API key."
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          },
+          {
+            "X-API-Key": []
+          }
+        ],
+        "summary": "Run a real-time SIM-swap risk check",
+        "tags": [
+          "SIM Swap Intelligence"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Telvri Security API Gateway",
+    "description": "Developer-first Identity and Security Platform for real-time telco fraud mitigation, including SIM-swap intelligence for trusted application workflows.",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [
+    {
+      "url": "https://telvrisecurity.vercel.app",
+      "description": "Telvri Security production API"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "X-API-Key": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key",
+        "description": "Developer live API key with the rt_live_ prefix."
+      },
+      "Bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "API Key",
+        "type": "http",
+        "description": "Alternative bearer credential using Authorization: Bearer <KEY>."
+      }
+    },
+    "schemas": {
+      "LoginDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "Developer account email address.",
+            "example": "dev@telvri.security"
+          },
+          "password": {
+            "type": "string",
+            "description": "Account password.",
+            "example": "TelvriSecure123",
+            "minLength": 8
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "SignupDto": {
+        "type": "object",
+        "properties": {
+          "fullName": {
+            "type": "string",
+            "description": "Full name for the developer account.",
+            "example": "Ada Okonkwo"
+          },
+          "email": {
+            "type": "string",
+            "description": "Work email used for dashboard access and API key delivery.",
+            "example": "ada@fintech.example"
+          },
+          "company": {
+            "type": "string",
+            "description": "Company or team name.",
+            "example": "Northwind Fintech"
+          },
+          "password": {
+            "type": "string",
+            "description": "Account password.",
+            "example": "TelvriSecure123",
+            "minLength": 8
+          },
+          "confirmPassword": {
+            "type": "string",
+            "description": "Password confirmation.",
+            "example": "TelvriSecure123",
+            "minLength": 8
+          }
+        },
+        "required": [
+          "fullName",
+          "email",
+          "password",
+          "confirmPassword"
+        ]
+      },
+      "CheckSimSwapDto": {
+        "type": "object",
+        "properties": {
+          "phoneNumber": {
+            "type": "string",
+            "description": "Subscriber phone number in strict E.164 format.",
+            "example": "+2348031234567",
+            "pattern": "^\\+[1-9]\\d{1,14}$"
+          },
+          "maxAgeHours": {
+            "type": "number",
+            "description": "Maximum acceptable age, in hours, for SIM-swap intelligence.",
+            "example": 24,
+            "default": 24,
+            "minimum": 1,
+            "maximum": 168
+          }
+        },
+        "required": [
+          "phoneNumber"
+        ]
+      },
+      "SimSwapResponseDto": {
+        "type": "object",
+        "properties": {
+          "phoneNumber": {
+            "type": "string",
+            "description": "Subscriber phone number in E.164 format.",
+            "example": "+2348031234567"
+          },
+          "swapped": {
+            "type": "boolean",
+            "description": "Whether the network registry indicates a recent SIM swap.",
+            "example": false
+          },
+          "lastSwappedAt": {
+            "type": "string",
+            "description": "ISO-8601 timestamp of the most recent SIM-swap signal.",
+            "example": "2026-07-14T16:27:00.000Z",
+            "format": "date-time"
+          },
+          "provider": {
+            "type": "string",
+            "description": "Resolved mobile network operator or telecom provider.",
+            "example": "MTN Nigeria"
+          },
+          "operator": {
+            "type": "string",
+            "description": "Resolved mobile network operator. Alias retained for telco domain consumers.",
+            "example": "MTN Nigeria"
+          }
+        },
+        "required": [
+          "phoneNumber",
+          "swapped",
+          "provider",
+          "operator"
+        ]
+      }
+    }
+  }
+}
