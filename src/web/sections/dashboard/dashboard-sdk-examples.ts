@@ -64,15 +64,20 @@ console.log(result);`;
 const result = await response.json();
 console.log(result);`;
   const pythonExample = `import os
-import requests
+import telvri_security
+from telvri_security.models.check_sim_swap_dto import CheckSimSwapDto
 
-response = requests.post(
-    "${apiBaseUrl}/v1/security/sim-check",
-    headers={"X-API-Key": os.environ["TELVRI_API_KEY"]},
-    json={"phoneNumber": "+2348031234569", "maxAgeHours": 24},
-)
+config = telvri_security.Configuration(host="${apiBaseUrl}")
+config.api_key["X-API-Key"] = os.environ["TELVRI_API_KEY"]
 
-print(response.json())`;
+with telvri_security.ApiClient(config) as client:
+    api = telvri_security.SIMSwapIntelligenceApi(client)
+
+    result = api.sim_swap_controller_check_sim_swap(
+        CheckSimSwapDto(phoneNumber="+2348031234569", maxAgeHours=24),
+    )
+
+    print(result)`;
   const goExample = `package main
 
 import (

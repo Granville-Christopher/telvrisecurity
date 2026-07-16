@@ -130,6 +130,29 @@ patchGeneratedSdks();
 
 console.log('\nAll SDKs generated under ./sdks');
 
+const MIT_LICENSE = `MIT License
+
+Copyright (c) 2026 Telvri Security
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+`;
+
 function patchGeneratedSdks() {
   const goModule = 'github.com/telvri-security/telvri-go';
 
@@ -144,15 +167,22 @@ function patchGeneratedSdks() {
     composer.description =
       'Official Telvri Security PHP SDK for SIM-swap and mobile identity checks.';
     composer.homepage = 'https://telvrisecurity.vercel.app';
+    composer.license = 'MIT';
     writeFileSync(composerPath, `${JSON.stringify(composer, null, 4)}\n`);
   }
 
   const pyprojectPath = join(sdksRoot, 'python', 'pyproject.toml');
   if (existsSync(pyprojectPath)) {
-    const pyproject = readFileSync(pyprojectPath, 'utf8').replace(
+    let pyproject = readFileSync(pyprojectPath, 'utf8').replace(
       /^name = "telvri_security"$/m,
       'name = "telvri-security"',
     );
+    if (!/^license = /m.test(pyproject)) {
+      pyproject = pyproject.replace(
+        /^readme = "README.md"$/m,
+        'readme = "README.md"\nlicense = "MIT"\nlicense-files = ["LICENSE"]',
+      );
+    }
     writeFileSync(pyprojectPath, pyproject);
   }
 
@@ -161,12 +191,21 @@ function patchGeneratedSdks() {
     const javascriptPackage = JSON.parse(readFileSync(javascriptPackagePath, 'utf8'));
     javascriptPackage.description =
       'Official Telvri Security SDK for SIM-swap and mobile identity checks.';
+    javascriptPackage.author = 'Telvri Security';
+    javascriptPackage.license = 'MIT';
     javascriptPackage.repository = {
       type: 'git',
       url: javascriptRepositoryUrl,
     };
     javascriptPackage.keywords = ['telvri', 'sim-swap', 'identity-security', 'fraud', 'openapi'];
     writeFileSync(javascriptPackagePath, `${JSON.stringify(javascriptPackage, null, 2)}\n`);
+  }
+
+  for (const sdkDirectory of ['javascript', 'python', 'go', 'php', 'ruby', 'java', 'dotnet']) {
+    const sdkPath = join(sdksRoot, sdkDirectory);
+    if (existsSync(sdkPath)) {
+      writeFileSync(join(sdkPath, 'LICENSE'), MIT_LICENSE);
+    }
   }
 }
 
