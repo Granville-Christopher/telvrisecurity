@@ -8,9 +8,11 @@ export function renderHomepageFooterSection(): string {
           aria-label="Telvri Security home"
         >
           <img
-            src="/media/logo/telvriwhite.png"
+            src="/media/logo/telvriwhite.png?v=3"
             alt="Telvri Security"
-            class="block h-20 w-auto max-w-[min(320px,100%)] object-contain sm:h-24 md:h-28"
+            class="block w-auto object-contain"
+            width="140"
+            height="78"
           />
         </a>
         <p data-i18n="footer.tagline">Developer-first telco identity security for fraud-resistant account workflows.</p>

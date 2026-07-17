@@ -8,10 +8,24 @@ export function renderHomepageNavbarScripts(): string {
   return `
             const homepageHero = document.querySelector('[data-homepage-hero]');
             const homepageNavbar = document.querySelector('[data-navbar-shell]') || document.querySelector('.navbar-shell');
+            const navbarLogoImg = document.querySelector('[data-navbar-logo-img]');
             const setNavbarHeroState = (isOverHero) => {
               if (!homepageNavbar) return;
               homepageNavbar.classList.toggle('is-over-hero', isOverHero);
+              if (navbarLogoImg) {
+                const heroSrc = navbarLogoImg.getAttribute('data-logo-hero') || '/media/logo/telvriwhite.png';
+                const scrolledSrc = navbarLogoImg.getAttribute('data-logo-scrolled') || '/media/logo/telvripurple.png';
+                const nextSrc = isOverHero ? heroSrc : scrolledSrc;
+                if (navbarLogoImg.getAttribute('src') !== nextSrc) {
+                  navbarLogoImg.setAttribute('src', nextSrc);
+                }
+              }
             };
+
+            if (navbarLogoImg) {
+              const purpleLogo = new Image();
+              purpleLogo.src = navbarLogoImg.getAttribute('data-logo-scrolled') || '/media/logo/telvripurple.png';
+            }
 
             if (homepageNavbar && homepageHero && 'IntersectionObserver' in window) {
               const heroObserver = new IntersectionObserver((entries) => {

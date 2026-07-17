@@ -8,9 +8,14 @@ export function renderHomepageNavbarSection(): string {
         data-navbar-logo
       >
         <img
-          src="/media/logo/telvriwhite.png"
+          src="/media/logo/telvriwhite.png?v=3"
           alt="Telvri Security"
-          class="block h-20 w-auto max-w-[min(320px,52vw)] object-contain sm:h-24 md:h-28"
+          class="block w-auto object-contain"
+          width="160"
+          height="100"
+          data-navbar-logo-img
+          data-logo-hero="/media/logo/telvriwhite.png?v=3"
+          data-logo-scrolled="/media/logo/telvripurple.png?v=3"
         />
       </a>
       <button

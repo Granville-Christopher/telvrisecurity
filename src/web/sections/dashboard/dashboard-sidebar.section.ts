@@ -7,9 +7,9 @@ export function renderDashboardSidebarSection(user: SessionUser): string {
 
   return `
     <aside class="sidebar">
-      <a class="brand brand-logo dashboard-brand-logo inline-flex shrink-0 items-center rounded-full bg-[linear-gradient(to_bottom,transparent,transparent,white,transparent,transparent)] pl-2 pr-1 py-1.5" href="/" aria-label="Telvri Security home">
+      <a class="brand brand-logo dashboard-brand-logo inline-flex shrink-0 items-center" href="/" aria-label="Telvri Security home">
         <img
-          src="/media/logo/telvri.png"
+          src="/media/logo/telvriwhite.png"
           alt="Telvri Security"
           class="block h-14 w-auto max-w-full object-contain"
         />

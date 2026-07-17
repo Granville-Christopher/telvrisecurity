@@ -12,7 +12,7 @@ export const DEFAULT_SITE_ORIGIN = 'https://telvrisecurity.vercel.app';
 
 export const DEFAULT_OG_IMAGE_PATH = '/media/home.png';
 
-export const DEFAULT_LOGO_PATH = '/media/logo/telvri.png';
+export const DEFAULT_LOGO_PATH = '/media/logo/telvriwhite.png';
 
 export const DEFAULT_KEYWORDS = [
   'SIM-swap detection',

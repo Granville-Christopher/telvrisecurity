@@ -5,11 +5,11 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "build": "nest build && node scripts/copy-swagger-ui.mjs",
+    "build": "node ./node_modules/@nestjs/cli/bin/nest.js build && node scripts/copy-swagger-ui.mjs",
     "format": "prettier --write \"src/**/*.ts\"",
-    "run": "nest start",
-    "start": "nest start",
-    "start:dev": "nest start --watch",
+    "run": "node ./node_modules/@nestjs/cli/bin/nest.js start",
+    "start": "node ./node_modules/@nestjs/cli/bin/nest.js start",
+    "start:dev": "node ./node_modules/@nestjs/cli/bin/nest.js start --watch",
     "start:prod": "node dist/main.js",
     "sdk:fetch-spec": "curl -s https://telvrisecurity.vercel.app/docs-json -o openapi.json",
     "sdk:generate": "node scripts/generate-sdks.mjs"

@@ -1,8 +1,8 @@
 import { Controller, Get, Header, Query, Res } from '@nestjs/common';
 import { ApiExcludeController } from '@nestjs/swagger';
 import { Response } from 'express';
-import { join } from 'path';
 
+import { resolveMediaPath } from './media-path.util';
 import { renderPage } from './rendering/page.renderer';
 import { DEFAULT_OG_IMAGE_PATH, SITE_SEO_DESCRIPTION } from './rendering/site-metadata';
 import { renderLoginPageSections } from './sections/auth/login.sections';
@@ -46,32 +46,32 @@ export class WebController {
 
   @Get('media/home.png')
   serveHomePreviewImage(@Res() response: Response): void {
-    response.sendFile(join(__dirname, '..', 'MEDIA', 'home.png'));
+    response.sendFile(resolveMediaPath('home.png'));
   }
 
   @Get('media/logo/telvriwhite.png')
   serveTelvriWhiteLogo(@Res() response: Response): void {
-    response.sendFile(join(__dirname, '..', 'MEDIA', 'logo', 'telvriwhite.png'));
+    response.sendFile(resolveMediaPath('logo', 'telvriwhite.png'));
   }
 
   @Get('media/logo/telvripurple.png')
   serveTelvriPurpleLogo(@Res() response: Response): void {
-    response.sendFile(join(__dirname, '..', 'MEDIA', 'logo', 'telvripurple.png'));
+    response.sendFile(resolveMediaPath('logo', 'telvripurple.png'));
   }
 
   @Get('media/logo/telvri.png')
   serveTelvriLogoFromLogoFolder(@Res() response: Response): void {
-    response.sendFile(join(__dirname, '..', 'MEDIA', 'logo', 'telvripurple.png'));
+    response.sendFile(resolveMediaPath('logo', 'telvriwhite.png'));
   }
 
   @Get('media/telvri.png')
   serveTelvriLogoPng(@Res() response: Response): void {
-    response.sendFile(join(__dirname, '..', 'MEDIA', 'telvri.png'));
+    response.sendFile(resolveMediaPath('telvri.png'));
   }
 
   @Get('media/telvri.jpeg')
   serveTelvriLogoJpeg(@Res() response: Response): void {
-    response.sendFile(join(__dirname, '..', 'MEDIA', 'telvri.jpeg'));
+    response.sendFile(resolveMediaPath('telvri.jpeg'));
   }
 
   @Get('homepage/resources')
