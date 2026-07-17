@@ -3,16 +3,16 @@ export function renderHomepageUseCasesSection(): string {
     <section class="use-case-section reveal-up">
       <div class="use-case-layout">
         <div class="use-case-intro section-heading">
-          <p class="eyebrow">Where it fits</p>
-          <h2>Protect the moments attackers target first.</h2>
-          <p>Deploy phone-risk checks at the identity events fraud teams care about most.</p>
+          <p class="eyebrow" data-i18n="use.eyebrow">Where it fits</p>
+          <h2 data-i18n="use.title">Protect the moments attackers target first.</h2>
+          <p data-i18n="use.lede">Deploy phone-risk checks at the identity events fraud teams care about most.</p>
         </div>
         <div class="use-case-list">
           <article class="use-case-row">
             <span class="use-case-row-index">01</span>
             <div class="use-case-row-copy">
-              <h3>Login recovery</h3>
-              <p>Check SIM-swap risk before allowing password resets or device re-enrollment.</p>
+              <h3 data-i18n="use.1.title">Login recovery</h3>
+              <p data-i18n="use.1.body">Check SIM-swap risk before allowing password resets or device re-enrollment.</p>
             </div>
             <figure class="use-case-row-thumb">
               <img
@@ -25,8 +25,8 @@ export function renderHomepageUseCasesSection(): string {
           <article class="use-case-row">
             <span class="use-case-row-index">02</span>
             <div class="use-case-row-copy">
-              <h3>Wallet withdrawals</h3>
-              <p>Step up verification before crypto, fintech, or stored-value transfers.</p>
+              <h3 data-i18n="use.2.title">Wallet withdrawals</h3>
+              <p data-i18n="use.2.body">Step up verification before crypto, fintech, or stored-value transfers.</p>
             </div>
             <figure class="use-case-row-thumb">
               <img
@@ -39,8 +39,8 @@ export function renderHomepageUseCasesSection(): string {
           <article class="use-case-row">
             <span class="use-case-row-index">03</span>
             <div class="use-case-row-copy">
-              <h3>New payees</h3>
-              <p>Detect phone-number compromise before adding payout destinations.</p>
+              <h3 data-i18n="use.3.title">New payees</h3>
+              <p data-i18n="use.3.body">Detect phone-number compromise before adding payout destinations.</p>
             </div>
             <figure class="use-case-row-thumb">
               <img
@@ -53,8 +53,8 @@ export function renderHomepageUseCasesSection(): string {
           <article class="use-case-row">
             <span class="use-case-row-index">04</span>
             <div class="use-case-row-copy">
-              <h3>High-risk onboarding</h3>
-              <p>Combine phone intelligence with KYC and fraud-screening flows.</p>
+              <h3 data-i18n="use.4.title">High-risk onboarding</h3>
+              <p data-i18n="use.4.body">Combine phone intelligence with KYC and fraud-screening flows.</p>
             </div>
             <figure class="use-case-row-thumb">
               <img

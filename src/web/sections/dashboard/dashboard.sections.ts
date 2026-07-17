@@ -22,7 +22,7 @@ export function renderDashboardSections(model: DashboardViewModel): string {
           <img
             src="/media/logo/telvri.png"
             alt="Telvri Security"
-            class="block h-9 w-auto max-w-full object-contain"
+            class="block h-14 w-auto max-w-[min(220px,58vw)] object-contain"
           />
         </a>
         <button

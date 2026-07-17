@@ -3,16 +3,16 @@ export function renderHomepageProofSection(): string {
     <section class="security-proof-section reveal-up">
       <div class="proof-layout">
         <div class="proof-intro section-heading">
-          <p class="eyebrow">Security platform foundation</p>
-          <h2>Built for teams that need proof before trust.</h2>
-          <p>Telvri Security turns mobile-network intelligence into a simple decision layer for account protection, onboarding, wallet recovery, and transaction risk.</p>
+          <p class="eyebrow" data-i18n="proof.eyebrow">Security platform foundation</p>
+          <h2 data-i18n="proof.title">Built for teams that need proof before trust.</h2>
+          <p data-i18n="proof.lede">Telvri Security turns mobile-network intelligence into a simple decision layer for account protection, onboarding, wallet recovery, and transaction risk.</p>
         </div>
         <div class="proof-stack">
           <article class="proof-row">
             <div class="proof-row-copy">
-              <span class="proof-row-label">Threat intelligence</span>
-              <h3>SIM-swap risk signals</h3>
-              <p>Evaluate phone-number risk before sensitive identity moments and return a clear decision for your backend.</p>
+              <span class="proof-row-label" data-i18n="proof.1.label">Threat intelligence</span>
+              <h3 data-i18n="proof.1.title">SIM-swap risk signals</h3>
+              <p data-i18n="proof.1.body">Evaluate phone-number risk before sensitive identity moments and return a clear decision for your backend.</p>
             </div>
             <figure class="proof-row-media">
               <img
@@ -24,9 +24,9 @@ export function renderHomepageProofSection(): string {
           </article>
           <article class="proof-row proof-row-reverse">
             <div class="proof-row-copy">
-              <span class="proof-row-label">Developer control</span>
-              <h3>API-key protected access</h3>
-              <p>Use live-style keys, strict request validation, Swagger contracts, and predictable JSON responses.</p>
+              <span class="proof-row-label" data-i18n="proof.2.label">Developer control</span>
+              <h3 data-i18n="proof.2.title">API-key protected access</h3>
+              <p data-i18n="proof.2.body">Use live-style keys, strict request validation, Swagger contracts, and predictable JSON responses.</p>
             </div>
             <figure class="proof-row-media">
               <img
@@ -38,9 +38,9 @@ export function renderHomepageProofSection(): string {
           </article>
           <article class="proof-row">
             <div class="proof-row-copy">
-              <span class="proof-row-label">Enterprise readiness</span>
-              <h3>OpenAPI as source of truth</h3>
-              <p>Use the OpenAPI contract to generate SDKs, import into gateways, and keep developer docs aligned.</p>
+              <span class="proof-row-label" data-i18n="proof.3.label">Enterprise readiness</span>
+              <h3 data-i18n="proof.3.title">OpenAPI as source of truth</h3>
+              <p data-i18n="proof.3.body">Use the OpenAPI contract to generate SDKs, import into gateways, and keep developer docs aligned.</p>
             </div>
             <figure class="proof-row-media">
               <img
@@ -52,9 +52,9 @@ export function renderHomepageProofSection(): string {
           </article>
           <article class="proof-row proof-row-reverse">
             <div class="proof-row-copy">
-              <span class="proof-row-label">Operational workflow</span>
-              <h3>Step-up or block decisions</h3>
-              <p>Route high-risk signals into MFA, manual review, cooldowns, or blocked recovery flows.</p>
+              <span class="proof-row-label" data-i18n="proof.4.label">Operational workflow</span>
+              <h3 data-i18n="proof.4.title">Step-up or block decisions</h3>
+              <p data-i18n="proof.4.body">Route high-risk signals into MFA, manual review, cooldowns, or blocked recovery flows.</p>
             </div>
             <figure class="proof-row-media">
               <img

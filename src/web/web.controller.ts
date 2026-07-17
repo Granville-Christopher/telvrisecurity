@@ -49,9 +49,19 @@ export class WebController {
     response.sendFile(join(__dirname, '..', 'MEDIA', 'home.png'));
   }
 
+  @Get('media/logo/telvriwhite.png')
+  serveTelvriWhiteLogo(@Res() response: Response): void {
+    response.sendFile(join(__dirname, '..', 'MEDIA', 'logo', 'telvriwhite.png'));
+  }
+
+  @Get('media/logo/telvripurple.png')
+  serveTelvriPurpleLogo(@Res() response: Response): void {
+    response.sendFile(join(__dirname, '..', 'MEDIA', 'logo', 'telvripurple.png'));
+  }
+
   @Get('media/logo/telvri.png')
   serveTelvriLogoFromLogoFolder(@Res() response: Response): void {
-    response.sendFile(join(__dirname, '..', 'MEDIA', 'logo', 'telvri.png'));
+    response.sendFile(join(__dirname, '..', 'MEDIA', 'logo', 'telvripurple.png'));
   }
 
   @Get('media/telvri.png')

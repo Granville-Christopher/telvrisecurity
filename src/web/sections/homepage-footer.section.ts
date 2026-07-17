@@ -3,47 +3,47 @@ export function renderHomepageFooterSection(): string {
     <footer class="site-footer">
       <div class="footer-brand">
         <a
-          class="brand-logo inline-flex shrink-0 items-center rounded-full bg-[linear-gradient(to_bottom,transparent,transparent,white,transparent,transparent)] px-3 py-3"
+          class="brand-logo inline-flex shrink-0 items-center"
           href="/"
           aria-label="Telvri Security home"
         >
           <img
-            src="/media/logo/telvri.png"
+            src="/media/logo/telvriwhite.png"
             alt="Telvri Security"
             class="block h-20 w-auto max-w-[min(320px,100%)] object-contain sm:h-24 md:h-28"
           />
         </a>
-        <p>Developer-first telco identity security for fraud-resistant account workflows.</p>
+        <p data-i18n="footer.tagline">Developer-first telco identity security for fraud-resistant account workflows.</p>
       </div>
       <div class="footer-grid">
         <div>
-          <h3>Platform</h3>
-          <a href="#platform">SIM-swap checks</a>
-          <a href="/docs">Swagger docs</a>
-          <a href="/docs-json">OpenAPI JSON</a>
+          <h3 data-i18n="footer.platform">Platform</h3>
+          <a href="#platform" data-i18n="footer.sim">SIM-swap checks</a>
+          <a href="/docs" data-i18n="footer.swagger">Swagger docs</a>
+          <a href="/docs-json" data-i18n="footer.openapi">OpenAPI JSON</a>
         </div>
         <div>
-          <h3>Developers</h3>
-          <a href="/login">Dashboard</a>
-          <a href="/login">API keys</a>
-          <a href="/login">SDK examples</a>
+          <h3 data-i18n="footer.developers">Developers</h3>
+          <a href="/login" data-i18n="footer.dashboard">Dashboard</a>
+          <a href="/login" data-i18n="footer.keys">API keys</a>
+          <a href="/login" data-i18n="footer.sdks">SDK examples</a>
         </div>
         <div>
-          <h3>Security</h3>
-          <a href="#developers">Account recovery</a>
-          <a href="#platform">Payout protection</a>
-          <a href="#platform">Risk decisions</a>
+          <h3 data-i18n="footer.security">Security</h3>
+          <a href="#developers" data-i18n="footer.recovery">Account recovery</a>
+          <a href="#platform" data-i18n="footer.payout">Payout protection</a>
+          <a href="#platform" data-i18n="footer.risk">Risk decisions</a>
         </div>
         <div>
-          <h3>Company</h3>
+          <h3 data-i18n="footer.company">Company</h3>
           <a href="tel:+18005881656">+1 (800) 588-1656</a>
-          <a href="/login">Login</a>
-          <a href="/docs">Contact</a>
+          <a href="/login" data-i18n="footer.login">Login</a>
+          <a href="/docs" data-i18n="footer.contact">Contact</a>
         </div>
       </div>
       <div class="footer-bottom">
-        <span>© 2026 Telvri Security. All rights reserved.</span>
-        <span>Built for developer-first identity security.</span>
+        <span data-i18n="footer.rights">© 2026 Telvri Security. All rights reserved.</span>
+        <span data-i18n="footer.built">Built for developer-first identity security.</span>
       </div>
     </footer>
   `;
