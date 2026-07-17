@@ -12,7 +12,7 @@ export function renderHomepageHeroSection(): string {
           before login recovery, payouts, wallet resets, and sensitive account actions.
         </p>
         <div class="hero-actions">
-          <a class="button primary" href="/dashboard">Get started</a>
+          <a class="button primary" href="/signup">Get started</a>
           <a class="button secondary" href="/docs">Contact sales</a>
         </div>
       </div>

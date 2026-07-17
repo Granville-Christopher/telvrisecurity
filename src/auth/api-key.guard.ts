@@ -1,12 +1,7 @@
-import {
-  CanActivate,
-  ExecutionContext,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 
+import { ApiKeysService } from '../api-keys/api-keys.service';
 import { AuthenticatedRequest } from './authenticated-request.interface';
-import { DeveloperClient } from './developer-client.interface';
 
 interface ApiErrorPayload {
   error: string;
@@ -16,7 +11,9 @@ interface ApiErrorPayload {
 
 @Injectable()
 export class ApiKeyGuard implements CanActivate {
-  canActivate(context: ExecutionContext): boolean {
+  constructor(private readonly apiKeysService: ApiKeysService) {}
+
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
     const apiKey = this.extractApiKey(request);
 
@@ -28,12 +25,12 @@ export class ApiKeyGuard implements CanActivate {
       throw this.unauthorized('Invalid API key format. Live keys must start with rt_live_.');
     }
 
-    const developer = this.mockVerifyDeveloperKey(apiKey);
-    if (!developer) {
-      throw this.unauthorized('API key could not be verified.');
+    const verified = await this.apiKeysService.verify(apiKey);
+    if (!verified) {
+      throw this.unauthorized('API key is invalid, expired, or revoked.');
     }
 
-    request.developer = developer;
+    request.developer = { id: verified.userId, tier: 'growth' };
     return true;
   }
 
@@ -50,12 +47,6 @@ export class ApiKeyGuard implements CanActivate {
 
     const bearerMatch = authorization.match(/^Bearer\s+(.+)$/i);
     return bearerMatch?.[1]?.trim();
-  }
-
-  private mockVerifyDeveloperKey(apiKey: string): DeveloperClient | undefined {
-    return apiKey.length > 'rt_live_'.length
-      ? { id: 'dev_user_01HK78B', tier: 'enterprise' }
-      : undefined;
   }
 
   private unauthorized(message: string): UnauthorizedException {

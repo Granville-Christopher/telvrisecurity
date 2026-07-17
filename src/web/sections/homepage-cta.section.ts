@@ -12,7 +12,7 @@ export function renderHomepageCtaSection(): string {
             </p>
           </div>
           <div class="landing-cta-actions">
-            <a class="button primary" href="/dashboard">Open dashboard</a>
+            <a class="button primary" href="/signup">Create account</a>
             <a class="button secondary" href="/docs-json">View OpenAPI JSON</a>
           </div>
         </div>

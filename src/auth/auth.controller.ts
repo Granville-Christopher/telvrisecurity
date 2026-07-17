@@ -4,6 +4,7 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  Req,
   Res,
   UseFilters,
   UsePipes,
@@ -18,18 +19,23 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 
 import { AuthRedirectExceptionFilter } from './auth-redirect.exception-filter';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { SignupDto } from './dto/signup.dto';
+import { SessionService } from './session.service';
+import { wantsJsonResponse } from './wants-json.util';
 
 @ApiTags('Developer Auth')
 @UseFilters(AuthRedirectExceptionFilter)
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly sessionService: SessionService,
+  ) {}
 
   @Post('login')
   @HttpCode(HttpStatus.FOUND)
@@ -47,9 +53,14 @@ export class AuthController {
       forbidNonWhitelisted: true,
     }),
   )
-  login(@Body() dto: LoginDto, @Res() response: Response): void {
-    this.authService.login(dto);
-    response.redirect('/dashboard');
+  async login(
+    @Body() dto: LoginDto,
+    @Req() request: Request,
+    @Res() response: Response,
+  ): Promise<void> {
+    const user = await this.authService.login(dto);
+    this.sessionService.issueSession(response, user);
+    this.completeAuth(request, response);
   }
 
   @Post('signup')
@@ -68,8 +79,31 @@ export class AuthController {
       forbidNonWhitelisted: true,
     }),
   )
-  signup(@Body() dto: SignupDto, @Res() response: Response): void {
-    this.authService.signup(dto);
+  async signup(
+    @Body() dto: SignupDto,
+    @Req() request: Request,
+    @Res() response: Response,
+  ): Promise<void> {
+    const user = await this.authService.signup(dto);
+    this.sessionService.issueSession(response, user);
+    this.completeAuth(request, response);
+  }
+
+  @Post('logout')
+  @HttpCode(HttpStatus.FOUND)
+  @ApiOperation({ summary: 'Sign out of the developer dashboard' })
+  @ApiOkResponse({ description: 'Clears the session cookie and redirects to login.' })
+  logout(@Res() response: Response): void {
+    this.sessionService.clearSession(response);
+    response.redirect('/login');
+  }
+
+  private completeAuth(request: Request, response: Response): void {
+    if (wantsJsonResponse(request)) {
+      response.status(HttpStatus.OK).json({ redirect: '/dashboard' });
+      return;
+    }
+
     response.redirect('/dashboard');
   }
 }

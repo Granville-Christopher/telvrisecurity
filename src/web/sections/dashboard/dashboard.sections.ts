@@ -1,10 +1,18 @@
+import { ApiKeyView } from '../../../api-keys/api-keys.service';
+import { SessionUser } from '../../../auth/session.service';
 import { buildDashboardSdkExamples } from './dashboard-sdk-examples';
 import { renderDashboardOpenapiSection } from './dashboard-openapi.section';
 import { renderDashboardOverviewSection } from './dashboard-overview.section';
 import { renderDashboardSdkSection } from './dashboard-sdk.section';
 import { renderDashboardSidebarSection } from './dashboard-sidebar.section';
 
-export function renderDashboardSections(): string {
+export interface DashboardViewModel {
+  readonly user: SessionUser;
+  readonly keys: ApiKeyView[];
+  readonly activeKeyCount: number;
+}
+
+export function renderDashboardSections(model: DashboardViewModel): string {
   const examples = buildDashboardSdkExamples();
 
   return `
@@ -30,9 +38,9 @@ export function renderDashboardSections(): string {
         </button>
       </header>
       <div class="dashboard-backdrop" data-dashboard-close></div>
-      ${renderDashboardSidebarSection()}
+      ${renderDashboardSidebarSection(model.user)}
       <section class="dashboard-content">
-        ${renderDashboardOverviewSection(examples.apiKey)}
+        ${renderDashboardOverviewSection(model)}
         ${renderDashboardSdkSection(examples)}
         ${renderDashboardOpenapiSection()}
       </section>

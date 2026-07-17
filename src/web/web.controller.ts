@@ -7,7 +7,6 @@ import { renderPage } from './rendering/page.renderer';
 import { DEFAULT_OG_IMAGE_PATH, SITE_SEO_DESCRIPTION } from './rendering/site-metadata';
 import { renderLoginPageSections } from './sections/auth/login.sections';
 import { renderSignupPageSections } from './sections/auth/signup.sections';
-import { renderDashboardSections } from './sections/dashboard/dashboard.sections';
 import { renderHomepageSections } from './sections/homepage.sections';
 import {
   HomepageResourceFeed,
@@ -115,21 +114,6 @@ export class WebController {
         fullName: fullNameQuery,
         company: companyQuery,
       }),
-    });
-  }
-
-  @Get('dashboard')
-  @Header('Content-Type', 'text/html; charset=utf-8')
-  dashboardPage(): string {
-    return renderPage({
-      title: 'Developer Dashboard | Telvri Security',
-      seo: {
-        description:
-          'Telvri Security developer dashboard for API keys, SDK examples, and SIM-swap endpoint integration across JavaScript, Python, Go, and more.',
-        canonicalPath: '/dashboard',
-        noIndex: true,
-      },
-      body: renderDashboardSections(),
     });
   }
 }

@@ -7,6 +7,8 @@ import {
 } from '@nestjs/common';
 import { Response } from 'express';
 
+import { wantsJsonResponse } from './wants-json.util';
+
 @Catch(BadRequestException, UnauthorizedException)
 export class AuthRedirectExceptionFilter implements ExceptionFilter {
   catch(exception: BadRequestException | UnauthorizedException, host: ArgumentsHost): void {
@@ -14,12 +16,21 @@ export class AuthRedirectExceptionFilter implements ExceptionFilter {
     const request = host.switchToHttp().getRequest<{
       method: string;
       path: string;
+      headers?: Record<string, string | string[] | undefined>;
       body?: Record<string, string>;
     }>();
 
     const message = this.resolveMessage(exception);
     const body = request.body ?? {};
     const isSignup = request.path.includes('signup');
+
+    if (wantsJsonResponse(request)) {
+      response.status(exception.getStatus()).json({
+        message,
+        statusCode: exception.getStatus(),
+      });
+      return;
+    }
 
     if (isSignup) {
       const query = new URLSearchParams({

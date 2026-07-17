@@ -19,7 +19,7 @@ export interface DashboardSdkExamples {
 }
 
 export function buildDashboardSdkExamples(): DashboardSdkExamples {
-  const apiKey = 'rt_live_test_123456789';
+  const apiKey = 'rt_live_your_api_key';
   const apiBaseUrl = 'https://telvrisecurity.vercel.app';
   const npmInstall = 'npm install @telvri/security';
   const pipInstall = 'pip install telvri-security';

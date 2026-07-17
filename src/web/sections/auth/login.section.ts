@@ -28,7 +28,8 @@ export function renderLoginSection(state: AuthPageState = {}): string {
           <h2>Login</h2>
           <p class="auth-card-lede">Use your developer credentials to continue.</p>
           ${errorBlock}
-          <form class="auth-form" method="post" action="/auth/login" novalidate>
+          <p class="auth-alert auth-alert-inline" data-auth-error hidden role="alert"></p>
+          <form class="auth-form" method="post" action="/auth/login" data-auth-form novalidate>
             <label>
               <span>Email</span>
               <input

@@ -30,7 +30,8 @@ export function renderSignupSection(state: AuthPageState = {}): string {
           <h2>Sign up</h2>
           <p class="auth-card-lede">Create your developer account in minutes.</p>
           ${errorBlock}
-          <form class="auth-form" method="post" action="/auth/signup" novalidate>
+          <p class="auth-alert auth-alert-inline" data-auth-error hidden role="alert"></p>
+          <form class="auth-form" method="post" action="/auth/signup" data-auth-form novalidate>
             <label>
               <span>Full name</span>
               <input

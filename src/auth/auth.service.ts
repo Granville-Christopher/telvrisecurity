@@ -1,8 +1,9 @@
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 
+import { UsersService } from '../users/users.service';
 import { LoginDto } from './dto/login.dto';
 import { SignupDto } from './dto/signup.dto';
-import { AuthSession } from './auth-session.interface';
+import { SessionUser } from './session.service';
 
 interface AuthErrorPayload {
   error: string;
@@ -12,38 +13,52 @@ interface AuthErrorPayload {
 
 @Injectable()
 export class AuthService {
-  login(dto: LoginDto): AuthSession {
-    if (!dto.password || dto.password.length < 8) {
+  constructor(private readonly usersService: UsersService) {}
+
+  async login(dto: LoginDto): Promise<SessionUser> {
+    const user = await this.usersService.findByEmail(dto.email);
+    if (!user) {
       throw this.unauthorized('Invalid email or password.');
     }
 
-    return {
-      id: 'dev_user_01HK78B',
-      email: dto.email,
-      fullName: this.deriveDisplayName(dto.email),
-    };
+    const passwordMatches = await this.usersService.verifyPassword(user, dto.password);
+    if (!passwordMatches) {
+      throw this.unauthorized('Invalid email or password.');
+    }
+
+    return this.toSessionUser(user._id.toString(), user.email, user.fullName, user.company);
   }
 
-  signup(dto: SignupDto): AuthSession {
+  async signup(dto: SignupDto): Promise<SessionUser> {
     if (dto.password !== dto.confirmPassword) {
       throw this.badRequest('Passwords do not match.');
     }
 
-    return {
-      id: 'dev_user_01HK78B',
-      email: dto.email,
-      fullName: dto.fullName,
-      company: dto.company,
-    };
+    try {
+      const user = await this.usersService.create({
+        email: dto.email,
+        password: dto.password,
+        fullName: dto.fullName,
+        company: dto.company,
+      });
+
+      return this.toSessionUser(user._id.toString(), user.email, user.fullName, user.company);
+    } catch (error) {
+      if (error instanceof ConflictException) {
+        throw this.badRequest('An account with this email already exists.');
+      }
+
+      throw error;
+    }
   }
 
-  private deriveDisplayName(email: string): string {
-    const localPart = email.split('@')[0] ?? 'Developer';
-    return localPart
-      .split(/[._-]/)
-      .filter((segment) => segment.length > 0)
-      .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
-      .join(' ');
+  private toSessionUser(
+    id: string,
+    email: string,
+    fullName: string,
+    company?: string,
+  ): SessionUser {
+    return { id, email, fullName, company };
   }
 
   private unauthorized(message: string): UnauthorizedException {

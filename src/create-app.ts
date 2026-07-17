@@ -7,9 +7,15 @@ import { join } from 'path';
 
 import { AppModule } from './app.module';
 
+// cookie-parser is a CommonJS module that exports a function directly, so it must
+// be imported with import-require to avoid an undefined `.default` at runtime.
+import cookieParser = require('cookie-parser');
+
 const SWAGGER_UI_DIST_PATH = join(__dirname, 'swagger-ui-dist');
 
 export async function configureNestApp(app: INestApplication): Promise<void> {
+  app.use(cookieParser());
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

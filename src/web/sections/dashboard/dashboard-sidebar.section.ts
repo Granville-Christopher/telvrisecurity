@@ -1,4 +1,10 @@
-export function renderDashboardSidebarSection(): string {
+import { SessionUser } from '../../../auth/session.service';
+import { escapeHtml } from '../../rendering/html.utils';
+
+export function renderDashboardSidebarSection(user: SessionUser): string {
+  const displayName = escapeHtml(user.fullName || user.email);
+  const email = escapeHtml(user.email);
+
   return `
     <aside class="sidebar">
       <a class="brand brand-logo dashboard-brand-logo inline-flex shrink-0 items-center rounded-full bg-[linear-gradient(to_bottom,transparent,transparent,white,transparent,transparent)] pl-2 pr-1 py-1.5" href="/" aria-label="Telvri Security home">
@@ -20,11 +26,23 @@ export function renderDashboardSidebarSection(): string {
         </button>
         <a href="/docs"><span>Swagger Docs</span><small>Try requests</small></a>
       </nav>
+      <div class="sidebar-account">
+        <div class="sidebar-account-info">
+          <span class="sidebar-avatar">${escapeHtml((user.fullName || user.email).charAt(0).toUpperCase())}</span>
+          <div class="sidebar-account-meta">
+            <strong>${displayName}</strong>
+            <small>${email}</small>
+          </div>
+        </div>
+        <form method="post" action="/auth/logout">
+          <button type="submit" class="dashboard-logout">Sign out</button>
+        </form>
+      </div>
       <div class="sidebar-footer">
         <span class="status-dot"></span>
         <div>
           <strong>API online</strong>
-          <small>Live-style sandbox</small>
+          <small>Live production endpoint</small>
         </div>
       </div>
     </aside>

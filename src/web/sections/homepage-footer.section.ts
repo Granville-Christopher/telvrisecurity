@@ -24,9 +24,9 @@ export function renderHomepageFooterSection(): string {
         </div>
         <div>
           <h3>Developers</h3>
-          <a href="/dashboard">Dashboard</a>
-          <a href="/dashboard">API keys</a>
-          <a href="/dashboard">SDK examples</a>
+          <a href="/login">Dashboard</a>
+          <a href="/login">API keys</a>
+          <a href="/login">SDK examples</a>
         </div>
         <div>
           <h3>Security</h3>
