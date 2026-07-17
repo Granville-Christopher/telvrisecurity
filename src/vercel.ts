@@ -3,15 +3,26 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 
 import { createNestApp } from './create-app';
 
-let nestApp: NestExpressApplication | undefined;
+type GlobalNestCache = typeof globalThis & {
+  __telvriNestApp?: NestExpressApplication;
+  __telvriNestAppPromise?: Promise<NestExpressApplication>;
+};
 
 async function getNestApp(): Promise<NestExpressApplication> {
-  if (nestApp) {
-    return nestApp;
+  const cache = globalThis as GlobalNestCache;
+
+  if (cache.__telvriNestApp) {
+    return cache.__telvriNestApp;
   }
 
-  nestApp = await createNestApp();
-  return nestApp;
+  if (!cache.__telvriNestAppPromise) {
+    cache.__telvriNestAppPromise = createNestApp().then((app) => {
+      cache.__telvriNestApp = app;
+      return app;
+    });
+  }
+
+  return cache.__telvriNestAppPromise;
 }
 
 export default async function handler(request: Request, response: Response): Promise<void> {

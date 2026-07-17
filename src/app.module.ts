@@ -15,9 +15,23 @@ const DEFAULT_MONGODB_URI = 'mongodb://127.0.0.1:27017/telvri';
     ConfigModule.forRoot({ isGlobal: true }),
     MongooseModule.forRootAsync({
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        uri: configService.get<string>('MONGODB_URI') ?? DEFAULT_MONGODB_URI,
-      }),
+      useFactory: (configService: ConfigService) => {
+        const uri = configService.get<string>('MONGODB_URI') ?? DEFAULT_MONGODB_URI;
+
+        return {
+          uri,
+          // Do not block Nest bootstrap on MongoDB — required for Vercel serverless
+          // so the marketing site can respond while Atlas connects in the background.
+          lazyConnection: true,
+          retryAttempts: 2,
+          retryDelay: 1000,
+          serverSelectionTimeoutMS: 5000,
+          connectTimeoutMS: 5000,
+          socketTimeoutMS: 20000,
+          maxPoolSize: 1,
+          minPoolSize: 0,
+        };
+      },
     }),
     UsersModule,
     ApiKeysModule,
