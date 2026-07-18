@@ -656,6 +656,13 @@ export function renderDashboardTheme(): string {
       font-size: 0.88rem;
     }
 
+    .dashboard-shell .key-reveal[hidden],
+    .dashboard-shell [data-custom-date][hidden],
+    .dashboard-shell [data-create-key-error][hidden],
+    .dashboard-shell [data-auth-error][hidden] {
+      display: none !important;
+    }
+
     .dashboard-shell .key-reveal {
       display: grid;
       gap: 12px;
