@@ -47,7 +47,7 @@ Authenticated with a developer API key.
 
 ```json
 {
-  "phoneNumber": "+2348031234567",
+  "phoneNumber": "+2348021234567",
   "maxAgeHours": 24
 }
 ```
@@ -56,15 +56,15 @@ Authenticated with a developer API key.
 
 ```json
 {
-  "phoneNumber": "+2348031234567",
+  "phoneNumber": "+2348021234567",
   "swapped": false,
   "lastSwappedAt": "2026-07-14T16:27:00.000Z",
-  "provider": "MTN Nigeria",
-  "operator": "MTN Nigeria"
+  "provider": "Airtel Nigeria",
+  "operator": "Airtel Nigeria"
 }
 ```
 
-Mock behaviour: numbers ending in `9` return `swapped: true`. Keys must start with `rt_live_`.
+Mock behaviour: numbers ending in `9` return `swapped: true` (within `maxAgeHours`). Carrier is resolved from global mobile prefixes (e.g. `+234802…` → Airtel Nigeria, `+234803…` → MTN Nigeria, `+49170…` → Deutsche Telekom, `+1415…` → T-Mobile US). Keys must start with `rt_live_`.
 
 ## Project structure
 

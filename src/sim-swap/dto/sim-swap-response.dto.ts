@@ -3,7 +3,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 export class SimSwapResponseDto {
   @ApiProperty({
     description: 'Subscriber phone number in E.164 format.',
-    example: '+2348031234567',
+    example: '+2348021234567',
   })
   phoneNumber!: string;
 
@@ -21,14 +21,14 @@ export class SimSwapResponseDto {
   lastSwappedAt?: string;
 
   @ApiProperty({
-    description: 'Resolved mobile network operator or telecom provider.',
-    example: 'MTN Nigeria',
+    description: 'Resolved mobile network operator or telecom provider (global prefix catalog).',
+    example: 'Airtel Nigeria',
   })
   provider!: string;
 
   @ApiProperty({
     description: 'Resolved mobile network operator. Alias retained for telco domain consumers.',
-    example: 'MTN Nigeria',
+    example: 'Airtel Nigeria',
   })
   operator!: string;
 }

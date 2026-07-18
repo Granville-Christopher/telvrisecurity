@@ -34,7 +34,7 @@ export class SimSwapController {
   @ApiOperation({
     summary: 'Run a real-time SIM-swap risk check',
     description:
-      'Checks a subscriber phone number against mocked telecom registry intelligence and returns whether recent SIM-swap activity is present.',
+      'Checks a subscriber phone number against mocked global telecom registry intelligence and returns whether recent SIM-swap activity is present. Carrier resolution uses national mobile prefixes worldwide (Nigeria MTN/Airtel/Glo/9mobile, Germany Telekom/Vodafone/O2, US AT&T/T-Mobile/Verizon, UK, India, UAE, and more). Mock rule: numbers ending in 9 report a swap within the last 2 hours.',
   })
   @ApiOkResponse({
     description: 'SIM-swap intelligence response.',
