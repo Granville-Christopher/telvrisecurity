@@ -69,9 +69,24 @@
         ]
       }
     },
+    "/auth/logout": {
+      "post": {
+        "operationId": "AuthController_logout",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Clears the session cookie and redirects to login."
+          }
+        },
+        "summary": "Sign out of the developer dashboard",
+        "tags": [
+          "Developer Auth"
+        ]
+      }
+    },
     "/v1/security/sim-check": {
       "post": {
-        "description": "Checks a subscriber phone number against mocked telecom registry intelligence and returns whether recent SIM-swap activity is present.",
+        "description": "Checks a subscriber phone number against mocked global telecom registry intelligence and returns whether recent SIM-swap activity is present. Carrier resolution uses national mobile prefixes worldwide (Nigeria MTN/Airtel/Glo/9mobile, Germany Telekom/Vodafone/O2, US AT&T/T-Mobile/Verizon, UK, India, UAE, and more). Mock rule: numbers ending in 9 report a swap within the last 2 hours.",
         "operationId": "SimSwapController_checkSimSwap",
         "parameters": [
           {
@@ -219,8 +234,14 @@
         "properties": {
           "phoneNumber": {
             "type": "string",
-            "description": "Subscriber phone number in strict E.164 format.",
-            "example": "+2348031234567",
+            "description": "Subscriber phone number in strict E.164 format. Supports global numbering plans (e.g. +1 US, +49 DE, +234 NG Airtel/MTN).",
+            "example": "+2348021234567",
+            "examples": [
+              "+2348021234567",
+              "+491701234567",
+              "+14155552671",
+              "+447700900123"
+            ],
             "pattern": "^\\+[1-9]\\d{1,14}$"
           },
           "maxAgeHours": {
@@ -242,7 +263,7 @@
           "phoneNumber": {
             "type": "string",
             "description": "Subscriber phone number in E.164 format.",
-            "example": "+2348031234567"
+            "example": "+2348021234567"
           },
           "swapped": {
             "type": "boolean",
@@ -257,13 +278,13 @@
           },
           "provider": {
             "type": "string",
-            "description": "Resolved mobile network operator or telecom provider.",
-            "example": "MTN Nigeria"
+            "description": "Resolved mobile network operator or telecom provider (global prefix catalog).",
+            "example": "Airtel Nigeria"
           },
           "operator": {
             "type": "string",
             "description": "Resolved mobile network operator. Alias retained for telco domain consumers.",
-            "example": "MTN Nigeria"
+            "example": "Airtel Nigeria"
           }
         },
         "required": [

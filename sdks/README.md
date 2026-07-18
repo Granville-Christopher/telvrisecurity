@@ -18,7 +18,7 @@ This creates or updates:
 |----------|--------|---------|
 | JavaScript/TypeScript | `sdks/javascript` | `@telvri/security` → [Granville-Christopher/telvri-js](https://github.com/Granville-Christopher/telvri-js) |
 | Python | `sdks/python` | `telvri-security` |
-| Go | `sdks/go` | `github.com/telvri-security/telvri-go` |
+| Go | `sdks/go` | `github.com/Granville-Christopher/telvri-go` |
 | PHP | `sdks/php` | `telvri/security` |
 | Ruby | `sdks/ruby` | `telvri_security` |
 | Java | `sdks/java` | `com.telvri:security:1.0.0` |
@@ -48,7 +48,14 @@ twine upload dist/*
 
 ### Go
 
-Push `sdks/go` to `github.com/telvri-security/telvri-go` and tag `v1.0.0`.
+```bash
+npm run sdk:generate:go
+# then publish sdks/go to github.com/Granville-Christopher/telvri-go and tag v1.0.0
+```
+
+```bash
+go get github.com/Granville-Christopher/telvri-go@v1.0.0
+```
 
 ### PHP (Packagist)
 

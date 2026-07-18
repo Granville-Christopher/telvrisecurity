@@ -117,7 +117,7 @@ HTML is **not** embedded in controllers. Each UI block lives in its own section 
 |----------|---------|
 | JavaScript/TypeScript | `@telvri/security` |
 | Python | `telvri-security` |
-| Go | `github.com/telvri-security/telvri-go` |
+| Go | `github.com/Granville-Christopher/telvri-go` |
 | PHP | `telvri/security` |
 | Ruby | `telvri_security` |
 | Java | `com.telvri:security:1.0.0` |

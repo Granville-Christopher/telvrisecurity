@@ -23,7 +23,7 @@ export function buildDashboardSdkExamples(): DashboardSdkExamples {
   const apiBaseUrl = 'https://telvrisecurity.vercel.app';
   const npmInstall = 'npm install @telvri/security';
   const pipInstall = 'pip install telvri-security';
-  const goInstall = 'go get github.com/telvri-security/telvri-go';
+  const goInstall = 'go get github.com/Granville-Christopher/telvri-go@v1.0.0';
   const composerInstall = 'composer require telvri/security';
   const gemInstall = 'gem install telvri_security';
   const mavenInstall = 'com.telvri:security:1.0.0';
@@ -81,40 +81,30 @@ with telvri_security.ApiClient(config) as client:
   const goExample = `package main
 
 import (
-	"bytes"
-	"encoding/json"
+	"context"
 	"fmt"
-	"net/http"
 	"os"
+
+	telvri "github.com/Granville-Christopher/telvri-go"
 )
 
-type SimSwapRequest struct {
-	PhoneNumber string \`json:"phoneNumber"\`
-	MaxAgeHours int    \`json:"maxAgeHours"\`
-}
-
 func main() {
-	body, _ := json.Marshal(SimSwapRequest{
-		PhoneNumber: "+2348031234569",
-		MaxAgeHours: 24,
-	})
+	cfg := telvri.NewConfiguration()
+	cfg.AddDefaultHeader("X-API-Key", os.Getenv("TELVRI_API_KEY"))
 
-	req, _ := http.NewRequest(
-		http.MethodPost,
-		"${apiBaseUrl}/v1/security/sim-check",
-		bytes.NewReader(body),
-	)
+	client := telvri.NewAPIClient(cfg)
+	dto := telvri.NewCheckSimSwapDto("+2348031234569")
 
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("X-API-Key", os.Getenv("TELVRI_API_KEY"))
-
-	res, err := http.DefaultClient.Do(req)
+	result, response, err := client.SIMSwapIntelligenceAPI.
+		SimSwapControllerCheckSimSwap(context.Background()).
+		CheckSimSwapDto(*dto).
+		Execute()
 	if err != nil {
 		panic(err)
 	}
-	defer res.Body.Close()
+	defer response.Body.Close()
 
-	fmt.Println(res.Status)
+	fmt.Printf("swapped=%v provider=%s\\n", result.GetSwapped(), result.GetProvider())
 }`;
   const phpExample = `<?php
 

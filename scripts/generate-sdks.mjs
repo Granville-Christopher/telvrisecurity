@@ -6,11 +6,15 @@ import { fileURLToPath } from 'node:url';
 const projectRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 const specPath = join(projectRoot, 'openapi.json');
 const sdksRoot = join(projectRoot, 'sdks');
+const githubOwner = process.env.TELVRI_GITHUB_OWNER ?? 'Granville-Christopher';
 const javascriptRepositoryUrl =
   process.env.TELVRI_JS_REPOSITORY_URL ??
-  'https://github.com/Granville-Christopher/telvri-js.git';
+  `https://github.com/${githubOwner}/telvri-js.git`;
+const goModulePath =
+  process.env.TELVRI_GO_MODULE ?? `github.com/${githubOwner}/telvri-go`;
 const apiBaseUrl = process.env.TELVRI_API_BASE_URL ?? 'https://telvrisecurity.vercel.app';
 const apiVersion = '1.0.0';
+const onlyLanguage = (process.env.TELVRI_SDK_ONLY ?? process.argv[2] ?? '').trim().toLowerCase();
 
 if (!existsSync(specPath)) {
   throw new Error(
@@ -40,7 +44,7 @@ function generateSdk({ language, outputDirectory, additionalProperties }) {
   console.log(`\nGenerating ${language} SDK -> sdks/${outputDirectory}`);
 
   execSync(
-    `"${generatorBinary}" generate -i "${specPath}" -g ${language} -o "${outputPath}" --additional-properties=${properties}`,
+    `"${generatorBinary}" generate -i "${specPath}" -g ${language} -o "${outputPath}" --skip-validate-spec --additional-properties=${properties}`,
     {
       cwd: projectRoot,
       stdio: 'inherit',
@@ -76,7 +80,7 @@ const sdkTargets = [
       packageName: 'telvri',
       packageVersion: apiVersion,
       gitHost: 'github.com',
-      gitUserId: 'telvri-security',
+      gitUserId: githubOwner,
       gitRepoId: 'telvri-go',
     },
   },
@@ -122,14 +126,6 @@ const sdkTargets = [
   },
 ];
 
-for (const target of sdkTargets) {
-  generateSdk(target);
-}
-
-patchGeneratedSdks();
-
-console.log('\nAll SDKs generated under ./sdks');
-
 const MIT_LICENSE = `MIT License
 
 Copyright (c) 2026 Telvri Security
@@ -153,11 +149,42 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 `;
 
-function patchGeneratedSdks() {
-  const goModule = 'github.com/telvri-security/telvri-go';
+const targetsToGenerate = onlyLanguage
+  ? sdkTargets.filter((target) => target.outputDirectory === onlyLanguage || target.language === onlyLanguage)
+  : sdkTargets;
 
-  replaceInTree(join(sdksRoot, 'go'), /github\.com\/GIT_USER_ID\/GIT_REPO_ID/g, goModule);
-  writeFileSync(join(sdksRoot, 'go', 'go.mod'), `module ${goModule}\n\ngo 1.23\n`);
+if (onlyLanguage && targetsToGenerate.length === 0) {
+  throw new Error(
+    `Unknown TELVRI_SDK_ONLY="${onlyLanguage}". Use one of: ${sdkTargets
+      .map((target) => target.outputDirectory)
+      .join(', ')}`,
+  );
+}
+
+for (const target of targetsToGenerate) {
+  generateSdk(target);
+}
+
+patchGeneratedSdks(targetsToGenerate.map((target) => target.outputDirectory));
+
+console.log(
+  onlyLanguage
+    ? `\n${onlyLanguage} SDK generated under ./sdks/${onlyLanguage}`
+    : '\nAll SDKs generated under ./sdks',
+);
+
+function patchGeneratedSdks(sdkDirectories = ['javascript', 'python', 'go', 'php', 'ruby', 'java', 'dotnet']) {
+  const goModule = goModulePath;
+
+  if (sdkDirectories.includes('go')) {
+    replaceInTree(join(sdksRoot, 'go'), /github\.com\/GIT_USER_ID\/GIT_REPO_ID/g, goModule);
+    replaceInTree(
+      join(sdksRoot, 'go'),
+      /github\.com\/telvri-security\/telvri-go/g,
+      goModule,
+    );
+    writeFileSync(join(sdksRoot, 'go', 'go.mod'), `module ${goModule}\n\ngo 1.22\n`);
+  }
 
   const composerPath = join(sdksRoot, 'php', 'composer.json');
   if (existsSync(composerPath)) {
@@ -201,7 +228,7 @@ function patchGeneratedSdks() {
     writeFileSync(javascriptPackagePath, `${JSON.stringify(javascriptPackage, null, 2)}\n`);
   }
 
-  for (const sdkDirectory of ['javascript', 'python', 'go', 'php', 'ruby', 'java', 'dotnet']) {
+  for (const sdkDirectory of sdkDirectories) {
     const sdkPath = join(sdksRoot, sdkDirectory);
     if (existsSync(sdkPath)) {
       writeFileSync(join(sdkPath, 'LICENSE'), MIT_LICENSE);
