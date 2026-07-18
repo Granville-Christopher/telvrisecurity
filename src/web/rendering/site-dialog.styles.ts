@@ -46,36 +46,45 @@ export function renderSiteDialogStyles(): string {
               margin-top: 22px;
             }
 
-            .site-dialog-cancel,
-            .site-dialog-accept {
-              min-height: 38px;
+            button.site-dialog-cancel,
+            button.site-dialog-accept {
+              display: inline-flex;
+              align-items: center;
+              justify-content: center;
+              box-sizing: border-box;
+              min-height: 40px;
+              padding: 0 18px !important;
               border-radius: 10px;
+              font: inherit;
+              font-size: 0.95rem;
               font-weight: 700;
+              line-height: 1.2;
+              cursor: pointer;
             }
 
-            .site-dialog-cancel {
+            button.site-dialog-cancel {
               color: rgba(244,242,251,0.85);
               background: rgba(255,255,255,0.06);
               border: 1px solid rgba(255,255,255,0.14);
             }
 
-            .site-dialog-accept {
+            button.site-dialog-accept {
               color: #fff;
               background: var(--accent);
               border: 1px solid var(--accent);
             }
 
-            .site-dialog-accept:hover {
+            button.site-dialog-accept:hover {
               background: var(--accent-dark);
               border-color: var(--accent-dark);
             }
 
-            .site-dialog.is-danger .site-dialog-accept {
+            .site-dialog.is-danger button.site-dialog-accept {
               background: #dc2626;
               border-color: #dc2626;
             }
 
-            .site-dialog.is-danger .site-dialog-accept:hover {
+            .site-dialog.is-danger button.site-dialog-accept:hover {
               background: #b91c1c;
               border-color: #b91c1c;
             }

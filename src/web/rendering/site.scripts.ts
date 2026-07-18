@@ -443,19 +443,53 @@ export function renderDashboardKeyScripts(): string {
               });
             }
 
-            const copyButtons = document.querySelectorAll('[data-key-reveal-copy], [data-test-key-copy]');
-            copyButtons.forEach((button) => {
-              if (!(button instanceof HTMLButtonElement)) return;
-              button.addEventListener('click', async () => {
-                const value = button.getAttribute('data-copy-value')
-                  || (keyRevealValue ? keyRevealValue.textContent : '')
-                  || '';
-                if (!value) return;
+            const copyTextToClipboard = async (value) => {
+              if (navigator.clipboard && navigator.clipboard.writeText) {
                 await navigator.clipboard.writeText(value);
-                const original = button.textContent;
-                button.textContent = 'Copied';
-                window.setTimeout(() => { button.textContent = original; }, 1200);
-              });
+                return;
+              }
+              const input = document.createElement('textarea');
+              input.value = value;
+              input.setAttribute('readonly', '');
+              input.style.position = 'fixed';
+              input.style.opacity = '0';
+              document.body.appendChild(input);
+              input.select();
+              document.execCommand('copy');
+              input.remove();
+            };
+
+            const markButtonCopied = (button) => {
+              const original = button.getAttribute('data-copy-label') || button.textContent || 'Copy';
+              button.setAttribute('data-copy-label', original);
+              button.textContent = 'Copied';
+              window.setTimeout(() => {
+                button.textContent = original;
+              }, 1200);
+            };
+
+            document.addEventListener('click', async (event) => {
+              const target = event.target;
+              if (!target || !target.closest) return;
+              const button = target.closest('[data-key-reveal-copy], [data-test-key-copy]');
+              if (!(button instanceof HTMLButtonElement)) return;
+
+              const value = (
+                button.getAttribute('data-copy-value')
+                || (keyRevealValue ? keyRevealValue.textContent : '')
+                || ''
+              ).trim();
+              if (!value) return;
+
+              try {
+                await copyTextToClipboard(value);
+                markButtonCopied(button);
+              } catch (error) {
+                await showAlertModal('Could not copy to clipboard. Select the key and copy it manually.', {
+                  title: 'Copy failed',
+                  tone: 'danger',
+                });
+              }
             });
   `;
 }

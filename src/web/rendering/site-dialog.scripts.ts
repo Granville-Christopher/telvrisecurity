@@ -36,11 +36,27 @@ export function renderSiteDialogScripts(): string {
                 if (event.key === 'Escape') close(false);
               };
 
+              const styleDialogButton = (button) => {
+                button.style.display = 'inline-flex';
+                button.style.alignItems = 'center';
+                button.style.justifyContent = 'center';
+                button.style.boxSizing = 'border-box';
+                button.style.minHeight = '40px';
+                button.style.padding = '0 18px';
+                button.style.borderRadius = '10px';
+                button.style.font = 'inherit';
+                button.style.fontSize = '0.95rem';
+                button.style.fontWeight = '700';
+                button.style.lineHeight = '1.2';
+                button.style.cursor = 'pointer';
+              };
+
               if (cancelLabel) {
                 const cancelBtn = document.createElement('button');
                 cancelBtn.type = 'button';
                 cancelBtn.className = 'site-dialog-cancel';
                 cancelBtn.textContent = cancelLabel;
+                styleDialogButton(cancelBtn);
                 cancelBtn.addEventListener('click', () => close(false));
                 actions.append(cancelBtn);
               }
@@ -49,6 +65,7 @@ export function renderSiteDialogScripts(): string {
               acceptBtn.type = 'button';
               acceptBtn.className = 'site-dialog-accept';
               acceptBtn.textContent = confirmLabel || 'OK';
+              styleDialogButton(acceptBtn);
               acceptBtn.addEventListener('click', () => close(true));
               actions.append(acceptBtn);
 

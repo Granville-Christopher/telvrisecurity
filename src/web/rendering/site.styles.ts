@@ -510,6 +510,12 @@ export function renderDashboardTheme(): string {
       margin-top: 14px;
     }
 
+    .dashboard-shell .test-key-actions .button,
+    .dashboard-shell .test-key-actions button {
+      min-height: 40px;
+      padding: 0 16px;
+    }
+
     .dashboard-shell .overview-key-panel {
       display: grid;
       gap: 14px;
@@ -784,11 +790,15 @@ export function renderDashboardTheme(): string {
       gap: 8px;
     }
 
-    .dashboard-shell .key-rotate,
-    .dashboard-shell .key-revoke,
-    .dashboard-shell .key-delete {
+    .dashboard-shell button.key-rotate,
+    .dashboard-shell button.key-revoke,
+    .dashboard-shell button.key-delete {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
       min-height: 38px;
-      padding: 0 14px;
+      padding: 0 14px !important;
       border-radius: 10px;
       font-weight: 750;
     }
@@ -887,7 +897,7 @@ export function renderDashboardTheme(): string {
       .dashboard-shell .key-row-actions button {
         flex: 1 1 auto;
         min-width: 0;
-        padding: 0 12px;
+        padding: 0 14px !important;
       }
 
       .dashboard-shell .key-reveal-value,
