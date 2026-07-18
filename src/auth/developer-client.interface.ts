@@ -1,4 +1,4 @@
 export interface DeveloperClient {
   id: string;
-  tier: 'sandbox' | 'growth' | 'enterprise';
+  tier: 'sandbox' | 'growth' | 'enterprise' | 'test';
 }

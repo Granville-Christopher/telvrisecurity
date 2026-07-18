@@ -1,15 +1,21 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
-import { createHash, randomBytes } from 'crypto';
+import { createHash, createHmac, randomBytes } from 'crypto';
 import { Model, Types } from 'mongoose';
 
-import { ApiKey, ApiKeyDocument } from './schemas/api-key.schema';
+import { ApiKey, ApiKeyDocument, ApiKeyKind } from './schemas/api-key.schema';
 
 export type ApiKeyStatus = 'active' | 'expired' | 'revoked';
 
 export interface ApiKeyView {
   readonly id: string;
   readonly name: string;
+  readonly kind: ApiKeyKind;
   readonly masked: string;
   readonly status: ApiKeyStatus;
   readonly createdAt: Date;
@@ -25,6 +31,7 @@ export interface CreatedApiKey {
 export interface VerifiedApiKey {
   readonly userId: string;
   readonly keyId: string;
+  readonly kind: ApiKeyKind;
 }
 
 export interface RotatedApiKey {
@@ -33,14 +40,23 @@ export interface RotatedApiKey {
   readonly revoked: ApiKeyView;
 }
 
+export interface UserTestKey {
+  readonly plainKey: string;
+  readonly view: ApiKeyView;
+}
+
 const LIVE_KEY_PREFIX = 'rt_live_';
+const TEST_KEY_PREFIX = 'rt_test_';
 
 @Injectable()
 export class ApiKeysService {
-  constructor(@InjectModel(ApiKey.name) private readonly apiKeyModel: Model<ApiKeyDocument>) {}
+  constructor(
+    @InjectModel(ApiKey.name) private readonly apiKeyModel: Model<ApiKeyDocument>,
+    private readonly configService: ConfigService,
+  ) {}
 
   async createForUser(userId: string, name: string, expiresAt: Date | null): Promise<CreatedApiKey> {
-    const plainKey = this.generatePlainKey();
+    const plainKey = this.generateLivePlainKey();
     const keyHash = this.hashKey(plainKey);
     const prefix = plainKey.slice(0, LIVE_KEY_PREFIX.length + 6);
     const last4 = plainKey.slice(-4);
@@ -48,6 +64,7 @@ export class ApiKeysService {
     const document = await this.apiKeyModel.create({
       userId: new Types.ObjectId(userId),
       name,
+      kind: 'live',
       keyHash,
       prefix,
       last4,
@@ -59,33 +76,72 @@ export class ApiKeysService {
 
   async listForUser(userId: string): Promise<ApiKeyView[]> {
     const documents = await this.apiKeyModel
-      .find({ userId: new Types.ObjectId(userId) })
+      .find({ userId: new Types.ObjectId(userId), kind: { $ne: 'test' } })
       .sort({ createdAt: -1 })
       .exec();
 
     return documents.map((document) => this.toView(document));
   }
 
+  async listLiveForUser(userId: string): Promise<ApiKeyView[]> {
+    return this.listForUser(userId);
+  }
+
   async countActiveForUser(userId: string): Promise<number> {
     const documents = await this.apiKeyModel
-      .find({ userId: new Types.ObjectId(userId), revokedAt: null })
+      .find({ userId: new Types.ObjectId(userId), kind: { $ne: 'test' }, revokedAt: null })
       .exec();
 
     return documents.filter((document) => this.resolveStatus(document) === 'active').length;
   }
 
-  async revokeForUser(userId: string, keyId: string): Promise<ApiKeyView> {
-    if (!Types.ObjectId.isValid(keyId)) {
-      throw new NotFoundException('API key not found.');
-    }
+  async getLatestActiveLiveKey(userId: string): Promise<ApiKeyView | null> {
+    const documents = await this.apiKeyModel
+      .find({ userId: new Types.ObjectId(userId), kind: { $ne: 'test' }, revokedAt: null })
+      .sort({ createdAt: -1 })
+      .exec();
+
+    const active = documents.find((document) => this.resolveStatus(document) === 'active');
+    return active ? this.toView(active) : null;
+  }
+
+  async ensureTestKeyForUser(userId: string): Promise<UserTestKey> {
+    const plainKey = this.deriveTestPlainKey(userId);
+    const keyHash = this.hashKey(plainKey);
+    const prefix = plainKey.slice(0, TEST_KEY_PREFIX.length + 6);
+    const last4 = plainKey.slice(-4);
+    const userObjectId = new Types.ObjectId(userId);
 
     const document = await this.apiKeyModel
-      .findOne({ _id: new Types.ObjectId(keyId), userId: new Types.ObjectId(userId) })
+      .findOneAndUpdate(
+        { userId: userObjectId, kind: 'test' },
+        {
+          $set: {
+            name: 'Development test key',
+            keyHash,
+            prefix,
+            last4,
+            expiresAt: null,
+            revokedAt: null,
+          },
+          $setOnInsert: {
+            userId: userObjectId,
+            kind: 'test',
+          },
+        },
+        { upsert: true, new: true },
+      )
       .exec();
 
     if (!document) {
-      throw new NotFoundException('API key not found.');
+      throw new BadRequestException('Could not provision a development test key.');
     }
+
+    return { plainKey, view: this.toView(document) };
+  }
+
+  async revokeForUser(userId: string, keyId: string): Promise<ApiKeyView> {
+    const document = await this.findOwnedLiveKey(userId, keyId);
 
     if (!document.revokedAt) {
       document.revokedAt = new Date();
@@ -96,17 +152,7 @@ export class ApiKeysService {
   }
 
   async rotateForUser(userId: string, keyId: string): Promise<RotatedApiKey> {
-    if (!Types.ObjectId.isValid(keyId)) {
-      throw new NotFoundException('API key not found.');
-    }
-
-    const existing = await this.apiKeyModel
-      .findOne({ _id: new Types.ObjectId(keyId), userId: new Types.ObjectId(userId) })
-      .exec();
-
-    if (!existing) {
-      throw new NotFoundException('API key not found.');
-    }
+    const existing = await this.findOwnedLiveKey(userId, keyId);
 
     if (!existing.revokedAt) {
       existing.revokedAt = new Date();
@@ -116,6 +162,16 @@ export class ApiKeysService {
     const created = await this.createForUser(userId, existing.name, existing.expiresAt ?? null);
 
     return { plainKey: created.plainKey, view: created.view, revoked: this.toView(existing) };
+  }
+
+  async deleteForUser(userId: string, keyId: string): Promise<void> {
+    const document = await this.findOwnedLiveKey(userId, keyId);
+
+    if (this.resolveStatus(document) !== 'revoked') {
+      throw new BadRequestException('Only revoked API keys can be deleted.');
+    }
+
+    await document.deleteOne();
   }
 
   async verify(plainKey: string): Promise<VerifiedApiKey | null> {
@@ -129,11 +185,44 @@ export class ApiKeysService {
     document.lastUsedAt = new Date();
     await document.save();
 
-    return { userId: document.userId.toString(), keyId: document._id.toString() };
+    return {
+      userId: document.userId.toString(),
+      keyId: document._id.toString(),
+      kind: document.kind === 'test' ? 'test' : 'live',
+    };
   }
 
-  private generatePlainKey(): string {
+  private async findOwnedLiveKey(userId: string, keyId: string): Promise<ApiKeyDocument> {
+    if (!Types.ObjectId.isValid(keyId)) {
+      throw new NotFoundException('API key not found.');
+    }
+
+    const document = await this.apiKeyModel
+      .findOne({
+        _id: new Types.ObjectId(keyId),
+        userId: new Types.ObjectId(userId),
+        kind: { $ne: 'test' },
+      })
+      .exec();
+
+    if (!document) {
+      throw new NotFoundException('API key not found.');
+    }
+
+    return document;
+  }
+
+  private generateLivePlainKey(): string {
     return `${LIVE_KEY_PREFIX}${randomBytes(24).toString('hex')}`;
+  }
+
+  private deriveTestPlainKey(userId: string): string {
+    const secret =
+      this.configService.get<string>('JWT_SECRET') ??
+      this.configService.get<string>('MONGODB_URI') ??
+      'telvri-dev-test-secret';
+    const digest = createHmac('sha256', secret).update(`telvri-test-key:${userId}`).digest('hex');
+    return `${TEST_KEY_PREFIX}${digest.slice(0, 48)}`;
   }
 
   private hashKey(plainKey: string): string {
@@ -153,9 +242,12 @@ export class ApiKeysService {
   }
 
   private toView(document: ApiKeyDocument): ApiKeyView {
+    const kind: ApiKeyKind = document.kind === 'test' ? 'test' : 'live';
+
     return {
       id: document._id.toString(),
       name: document.name,
+      kind,
       masked: `${document.prefix}${'\u2022'.repeat(8)}${document.last4}`,
       status: this.resolveStatus(document),
       createdAt: document.createdAt,

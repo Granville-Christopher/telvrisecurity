@@ -1,6 +1,7 @@
-import { ApiKeyView } from '../../../api-keys/api-keys.service';
+import { ApiKeyView, UserTestKey } from '../../../api-keys/api-keys.service';
 import { SessionUser } from '../../../auth/session.service';
 import { buildDashboardSdkExamples } from './dashboard-sdk-examples';
+import { renderDashboardApiKeysSection } from './dashboard-api-keys.section';
 import { renderDashboardOpenapiSection } from './dashboard-openapi.section';
 import { renderDashboardOverviewSection } from './dashboard-overview.section';
 import { renderDashboardSdkSection } from './dashboard-sdk.section';
@@ -10,6 +11,8 @@ export interface DashboardViewModel {
   readonly user: SessionUser;
   readonly keys: ApiKeyView[];
   readonly activeKeyCount: number;
+  readonly latestActiveKey: ApiKeyView | null;
+  readonly testKey: UserTestKey;
 }
 
 export function renderDashboardSections(model: DashboardViewModel): string {
@@ -41,6 +44,7 @@ export function renderDashboardSections(model: DashboardViewModel): string {
       ${renderDashboardSidebarSection(model.user)}
       <section class="dashboard-content">
         ${renderDashboardOverviewSection(model)}
+        ${renderDashboardApiKeysSection({ keys: model.keys, testKey: model.testKey })}
         ${renderDashboardSdkSection(examples)}
         ${renderDashboardOpenapiSection()}
       </section>

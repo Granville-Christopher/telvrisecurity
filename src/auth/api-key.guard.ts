@@ -21,8 +21,12 @@ export class ApiKeyGuard implements CanActivate {
       throw this.unauthorized('Missing API key. Provide X-API-Key or Authorization: Bearer <KEY>.');
     }
 
-    if (!apiKey.startsWith('rt_live_')) {
-      throw this.unauthorized('Invalid API key format. Live keys must start with rt_live_.');
+    const isLive = apiKey.startsWith('rt_live_');
+    const isTest = apiKey.startsWith('rt_test_');
+    if (!isLive && !isTest) {
+      throw this.unauthorized(
+        'Invalid API key format. Keys must start with rt_live_ or rt_test_.',
+      );
     }
 
     const verified = await this.apiKeysService.verify(apiKey);
@@ -30,7 +34,10 @@ export class ApiKeyGuard implements CanActivate {
       throw this.unauthorized('API key is invalid, expired, or revoked.');
     }
 
-    request.developer = { id: verified.userId, tier: 'growth' };
+    request.developer = {
+      id: verified.userId,
+      tier: verified.kind === 'test' ? 'test' : 'growth',
+    };
     return true;
   }
 

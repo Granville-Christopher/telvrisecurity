@@ -16,7 +16,10 @@ export function renderDashboardSidebarSection(user: SessionUser): string {
       </a>
       <nav>
         <button type="button" class="dashboard-nav-item active" data-dashboard-tab="overview">
-          <span>Overview</span><small>Keys and quick start</small>
+          <span>Overview</span><small>Status and quick start</small>
+        </button>
+        <button type="button" class="dashboard-nav-item" data-dashboard-tab="api-keys">
+          <span>API Keys</span><small>Live and test credentials</small>
         </button>
         <button type="button" class="dashboard-nav-item" data-dashboard-tab="sdk">
           <span>SDK Explorer</span><small>Language examples</small>

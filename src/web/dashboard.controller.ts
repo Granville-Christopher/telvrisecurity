@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Header,
   HttpCode,
@@ -36,7 +37,11 @@ export class DashboardController {
     @Res() response: Response,
   ): Promise<void> {
     const user = request.sessionUser!;
-    const keys = await this.apiKeysService.listForUser(user.id);
+    const [keys, latestActiveKey, testKey] = await Promise.all([
+      this.apiKeysService.listForUser(user.id),
+      this.apiKeysService.getLatestActiveLiveKey(user.id),
+      this.apiKeysService.ensureTestKeyForUser(user.id),
+    ]);
     const activeKeyCount = keys.filter((key) => key.status === 'active').length;
 
     const html = renderPage({
@@ -47,7 +52,7 @@ export class DashboardController {
         canonicalPath: '/dashboard',
         noIndex: true,
       },
-      body: renderDashboardSections({ user, keys, activeKeyCount }),
+      body: renderDashboardSections({ user, keys, activeKeyCount, latestActiveKey, testKey }),
     });
 
     response.send(html);
@@ -92,5 +97,14 @@ export class DashboardController {
     @Param('id') id: string,
   ): Promise<RotatedApiKey> {
     return this.apiKeysService.rotateForUser(request.sessionUser!.id, id);
+  }
+
+  @Delete('dashboard/api-keys/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteApiKey(
+    @Req() request: RequestWithSession,
+    @Param('id') id: string,
+  ): Promise<void> {
+    await this.apiKeysService.deleteForUser(request.sessionUser!.id, id);
   }
 }

@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
 
 export type ApiKeyDocument = HydratedDocument<ApiKey>;
+export type ApiKeyKind = 'live' | 'test';
 
 @Schema({ collection: 'api_keys', timestamps: true })
 export class ApiKey {
@@ -10,6 +11,9 @@ export class ApiKey {
 
   @Prop({ required: true, trim: true })
   name!: string;
+
+  @Prop({ required: true, enum: ['live', 'test'], default: 'live', index: true })
+  kind!: ApiKeyKind;
 
   @Prop({ required: true, unique: true, index: true })
   keyHash!: string;
