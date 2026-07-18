@@ -53,6 +53,13 @@ import { SessionService } from './session.service';
   ],
   controllers: [AuthController],
   providers: [ApiKeyGuard, AuthService, SessionService, SessionGuard, CsrfGuard],
-  exports: [ApiKeyGuard, AuthService, SessionService, SessionGuard, CsrfGuard],
+  exports: [
+    UsersModule,
+    ApiKeyGuard,
+    AuthService,
+    SessionService,
+    SessionGuard,
+    CsrfGuard,
+  ],
 })
 export class AuthModule {}
