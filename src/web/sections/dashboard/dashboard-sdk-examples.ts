@@ -28,7 +28,7 @@ export function buildDashboardSdkExamples(): DashboardSdkExamples {
   const gemInstall = 'gem install telvri_security';
   const mavenInstall =
     "implementation 'com.github.Granville-Christopher:telvri-java:v1.0.0'";
-  const dotnetInstall = 'dotnet add package Telvri.Security';
+  const dotnetInstall = 'dotnet add package Telvri.Security --version 1.0.0';
   const curlExample = `curl -X POST ${apiBaseUrl}/v1/security/sim-check \\
   -H "Content-Type: application/json" \\
   -H "X-API-Key: ${apiKey}" \\
@@ -162,21 +162,29 @@ SimSwapResponseDto result = api.simSwapControllerCheckSimSwap(
 );
 
 System.out.println(result.getSwapped() + " " + result.getProvider());`;
-  const csharpExample = `using System.Net.Http.Headers;
-using System.Text;
+  const csharpExample = `using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Telvri.Security.Api;
+using Telvri.Security.Client;
+using Telvri.Security.Extensions;
+using Telvri.Security.Model;
 
-using HttpClient client = new();
+var host = Host.CreateDefaultBuilder(args)
+    .ConfigureApi((_, _, options) =>
+    {
+        options.AddTokens(new ApiKeyToken(
+            Environment.GetEnvironmentVariable("TELVRI_API_KEY")!,
+            ClientUtils.ApiKeyHeader.X_API_Key,
+            prefix: string.Empty));
+        options.AddApiHttpClients();
+    })
+    .Build();
 
-using HttpRequestMessage request = new(HttpMethod.Post, "${apiBaseUrl}/v1/security/sim-check");
-request.Headers.Add("X-API-Key", Environment.GetEnvironmentVariable("TELVRI_API_KEY"));
-request.Content = new StringContent(
-    "{\"phoneNumber\":\"+2348031234569\",\"maxAgeHours\":24}",
-    Encoding.UTF8,
-    "application/json"
-);
-
-HttpResponseMessage response = await client.SendAsync(request);
-Console.WriteLine(await response.Content.ReadAsStringAsync());`;
+var api = host.Services.GetRequiredService<ISIMSwapIntelligenceApi>();
+var response = await api.SimSwapControllerCheckSimSwapAsync(
+    new CheckSimSwapDto("+2348031234569"));
+var result = response.Ok();
+Console.WriteLine(result?.Swapped + " " + result?.Provider);`;
 
   return {
     apiKey,

@@ -22,7 +22,7 @@ This creates or updates:
 | PHP | `sdks/php` | `telvri/security` |
 | Ruby | `sdks/ruby` | `telvri_security` |
 | Java | `sdks/java` | `com.telvri:security` → [Granville-Christopher/telvri-java](https://github.com/Granville-Christopher/telvri-java) (JitPack) |
-| .NET | `sdks/dotnet` | `Telvri.Security` |
+| .NET | `sdks/dotnet` | `Telvri.Security` → [Granville-Christopher/telvri-dotnet](https://github.com/Granville-Christopher/telvri-dotnet) |
 
 API base URL is injected into `openapi.json` as `https://telvrisecurity.vercel.app` before generation.
 
@@ -84,12 +84,20 @@ implementation 'com.github.Granville-Christopher:telvri-java:v1.0.0'
 
 Maven Central (`com.telvri:security`) can be added later with Sonatype OSSRH credentials.
 
-### NuGet
+### NuGet (.NET)
 
 ```bash
-cd sdks/dotnet
-dotnet pack src/Telvri.Security/Telvri.Security.csproj
-dotnet nuget push src/Telvri.Security/bin/Release/Telvri.Security.1.0.0.nupkg --api-key <key> --source https://api.nuget.org/v3/index.json
+npm run sdk:generate:dotnet
+# publish sdks/dotnet to github.com/Granville-Christopher/telvri-dotnet and tag v1.0.0
+```
+
+```bash
+dotnet pack src/Telvri.Security/Telvri.Security.csproj -c Release
+dotnet nuget push src/Telvri.Security/bin/Release/Telvri.Security.1.0.0.nupkg --api-key <NUGET_API_KEY> --source https://api.nuget.org/v3/index.json
+```
+
+```bash
+dotnet add package Telvri.Security --version 1.0.0
 ```
 
 ## Notes

@@ -122,6 +122,9 @@ const sdkTargets = [
       packageName: 'Telvri.Security',
       packageVersion: apiVersion,
       targetFramework: 'net8.0',
+      gitHost: 'github.com',
+      gitUserId: githubOwner,
+      gitRepoId: 'telvri-dotnet',
     },
   },
 ];
@@ -277,6 +280,50 @@ function patchGeneratedSdks(sdkDirectories = ['javascript', 'python', 'go', 'php
           '<organizationUrl>https://telvrisecurity.vercel.app</organizationUrl>',
         );
       writeFileSync(pomPath, pom);
+    }
+  }
+
+  if (sdkDirectories.includes('dotnet')) {
+    const dotnetRepoUrl = `https://github.com/${githubOwner}/telvri-dotnet`;
+    const csprojPath = join(sdksRoot, 'dotnet', 'src', 'Telvri.Security', 'Telvri.Security.csproj');
+    if (existsSync(csprojPath)) {
+      let csproj = readFileSync(csprojPath, 'utf8');
+      csproj = csproj
+        .replace(/<Authors>OpenAPI<\/Authors>/, '<Authors>Telvri Security</Authors>')
+        .replace(/<Company>OpenAPI<\/Company>/, '<Company>Telvri Security</Company>')
+        .replace(
+          /<AssemblyTitle>OpenAPI Library<\/AssemblyTitle>/,
+          '<AssemblyTitle>Telvri Security</AssemblyTitle>',
+        )
+        .replace(
+          /<Description>A library generated from a OpenAPI doc<\/Description>/,
+          '<Description>Official Telvri Security .NET SDK for SIM-swap and mobile identity checks.</Description>',
+        )
+        .replace(/<Copyright>No Copyright<\/Copyright>/, '<Copyright>Copyright (c) 2026 Telvri Security</Copyright>')
+        .replace(
+          /<RepositoryUrl>https:\/\/github\.com\/GIT_USER_ID\/GIT_REPO_ID\.git<\/RepositoryUrl>/,
+          `<RepositoryUrl>${dotnetRepoUrl}.git</RepositoryUrl>`,
+        )
+        .replace(
+          /<PackageReleaseNotes>Minor update<\/PackageReleaseNotes>/,
+          '<PackageReleaseNotes>Initial release of the Telvri Security .NET SDK.</PackageReleaseNotes>',
+        );
+
+      if (!csproj.includes('<PackageLicenseExpression>')) {
+        csproj = csproj.replace(
+          /<Version>1\.0\.0<\/Version>/,
+          `<Version>${apiVersion}</Version>\n    <PackageLicenseExpression>MIT</PackageLicenseExpression>\n    <PackageProjectUrl>${dotnetRepoUrl}</PackageProjectUrl>\n    <PackageTags>telvri;sim-swap;identity-security;fraud;openapi</PackageTags>\n    <PackageReadmeFile>README.md</PackageReadmeFile>`,
+        );
+      }
+
+      if (!csproj.includes('None Include="..\\..\\README.md"') && !csproj.includes('None Include="../../README.md"')) {
+        csproj = csproj.replace(
+          /<\/Project>\s*$/,
+          `  <ItemGroup>\n    <None Include="..\\..\\README.md" Pack="true" PackagePath="\\" />\n  </ItemGroup>\n\n</Project>\n`,
+        );
+      }
+
+      writeFileSync(csprojPath, csproj);
     }
   }
 

@@ -174,7 +174,7 @@ export function renderDashboardSdkSection(examples: DashboardSdkExamples): strin
           </div>
           <pre><code>${dotnetInstall}</code></pre>
           <div class="panel-heading compact">
-            <span>C# REST example</span>
+            <span>C# SDK example</span>
             <button type="button" data-copy="${escapeAttribute(csharpExample)}">Copy</button>
           </div>
           <pre><code>${escapeHtml(csharpExample)}</code></pre>

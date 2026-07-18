@@ -14,7 +14,8 @@
     "sdk:fetch-spec": "curl -s https://telvrisecurity.vercel.app/docs-json -o openapi.json",
     "sdk:generate": "node scripts/generate-sdks.mjs",
     "sdk:generate:go": "node scripts/generate-sdks.mjs go",
-    "sdk:generate:java": "node scripts/generate-sdks.mjs java"
+    "sdk:generate:java": "node scripts/generate-sdks.mjs java",
+    "sdk:generate:dotnet": "node scripts/generate-sdks.mjs dotnet"
   },
   "dependencies": {
     "@nestjs/common": "^10.4.15",

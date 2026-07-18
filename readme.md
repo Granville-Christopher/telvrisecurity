@@ -121,7 +121,7 @@ HTML is **not** embedded in controllers. Each UI block lives in its own section 
 | PHP | `telvri/security` |
 | Ruby | `telvri_security` |
 | Java | `com.github.Granville-Christopher:telvri-java` (JitPack) |
-| .NET | `Telvri.Security` |
+| .NET | `Telvri.Security` (NuGet) → [telvri-dotnet](https://github.com/Granville-Christopher/telvri-dotnet) |
 
 Dashboard mock key: `rt_live_test_123456789`
 
