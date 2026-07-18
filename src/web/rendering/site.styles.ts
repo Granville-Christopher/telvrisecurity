@@ -8,10 +8,16 @@ export function renderDashboardTheme(): string {
   return `
     .dashboard-shell {
       color: #f4f2fb;
+      overflow-x: clip;
       background:
         radial-gradient(1100px 560px at 86% -8%, rgba(124,58,237,0.20), transparent 55%),
         radial-gradient(900px 520px at 6% 108%, rgba(91,33,182,0.16), transparent 55%),
         #07060c;
+    }
+
+    .dashboard-shell .panel {
+      min-width: 0;
+      max-width: 100%;
     }
 
     .dashboard-shell .sidebar {
@@ -33,6 +39,8 @@ export function renderDashboardTheme(): string {
 
     .dashboard-shell .dashboard-content {
       min-width: 0;
+      max-width: 100%;
+      overflow-x: clip;
     }
 
     .dashboard-mobile-bar { display: none; }
@@ -54,11 +62,50 @@ export function renderDashboardTheme(): string {
       padding: 0;
     }
 
+    .dashboard-shell .dashboard-brand-logo-img,
+    .dashboard-shell .dashboard-brand-logo img {
+      display: block;
+      width: auto;
+      height: 56px;
+      max-width: min(200px, 100%);
+      object-fit: contain;
+    }
+
     .dashboard-shell .dashboard-nav-item,
     .dashboard-shell .sidebar nav a {
+      display: grid;
+      grid-template-columns: 1fr;
+      justify-items: start;
+      align-content: start;
+      gap: 4px;
+      width: 100%;
+      min-height: auto;
+      padding: 12px 14px;
       border: 1px solid transparent;
+      border-radius: 10px;
       color: rgba(244,242,251,0.6);
+      background: transparent;
+      text-align: left;
+      white-space: normal;
       transition: color 160ms ease, background 160ms ease, border-color 160ms ease;
+    }
+
+    .dashboard-shell .dashboard-nav-item > span,
+    .dashboard-shell .sidebar nav a > span {
+      display: block;
+      color: inherit;
+      font-size: 0.95rem;
+      font-weight: 800;
+      line-height: 1.25;
+    }
+
+    .dashboard-shell .dashboard-nav-item > small,
+    .dashboard-shell .sidebar nav a > small {
+      display: block;
+      color: rgba(244,242,251,0.42);
+      font-size: 0.78rem;
+      font-weight: 650;
+      line-height: 1.35;
     }
 
     .dashboard-shell .dashboard-nav-item:hover,
@@ -75,7 +122,6 @@ export function renderDashboardTheme(): string {
       box-shadow: inset 0 0 0 1px rgba(167,139,250,0.12), 0 10px 28px rgba(124,58,237,0.20);
     }
 
-    .dashboard-shell .sidebar nav small,
     .dashboard-shell .sidebar-footer small {
       color: rgba(244,242,251,0.42);
     }
@@ -197,10 +243,19 @@ export function renderDashboardTheme(): string {
     .dashboard-shell .key-meta b { color: #fff; }
 
     .dashboard-shell button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 38px;
+      padding: 0 14px;
       color: #c4b5fd;
       background: rgba(167,139,250,0.1);
       border: 1px solid rgba(167,139,250,0.24);
       border-radius: 10px;
+      font: inherit;
+      font-weight: 750;
+      line-height: 1.2;
+      white-space: nowrap;
       transition: color 150ms ease, background 150ms ease, border-color 150ms ease, transform 150ms ease;
     }
 
@@ -470,7 +525,10 @@ export function renderDashboardTheme(): string {
     .dashboard-shell .test-key-panel {
       display: grid;
       gap: 14px;
+      min-width: 0;
+      max-width: 100%;
       margin-bottom: 18px;
+      overflow: hidden;
     }
 
     .dashboard-shell .test-key-warning {
@@ -492,14 +550,19 @@ export function renderDashboardTheme(): string {
       display: flex;
       align-items: stretch;
       gap: 10px;
+      min-width: 0;
+      max-width: 100%;
     }
 
     .dashboard-shell .test-key-value code {
       flex: 1 1 auto;
       min-width: 0;
+      max-width: 100%;
       padding: 12px 14px;
       overflow-x: auto;
-      white-space: nowrap;
+      overflow-wrap: anywhere;
+      word-break: break-all;
+      white-space: pre-wrap;
       color: #fde68a;
       background: rgba(0,0,0,0.5);
       border: 1px solid rgba(234,179,8,0.28);
@@ -515,7 +578,10 @@ export function renderDashboardTheme(): string {
     .dashboard-shell .key-manager {
       display: grid;
       gap: 16px;
+      min-width: 0;
+      max-width: 100%;
       margin-bottom: 18px;
+      overflow: hidden;
     }
 
     .dashboard-shell .key-manager-intro {
@@ -593,10 +659,13 @@ export function renderDashboardTheme(): string {
     .dashboard-shell .key-reveal {
       display: grid;
       gap: 12px;
+      min-width: 0;
+      max-width: 100%;
       padding: 16px;
       border: 1px solid rgba(52,211,153,0.4);
       border-radius: 14px;
       background: linear-gradient(135deg, rgba(16,185,129,0.14), rgba(20,16,30,0.5));
+      overflow: hidden;
     }
 
     .dashboard-shell .key-reveal-head strong {
@@ -613,18 +682,30 @@ export function renderDashboardTheme(): string {
       display: flex;
       align-items: stretch;
       gap: 10px;
+      min-width: 0;
+      max-width: 100%;
     }
 
     .dashboard-shell .key-reveal-value code {
       flex: 1 1 auto;
       min-width: 0;
+      max-width: 100%;
       padding: 12px 14px;
       overflow-x: auto;
-      white-space: nowrap;
+      overflow-wrap: anywhere;
+      word-break: break-all;
+      white-space: pre-wrap;
       color: #d1fae5;
       background: rgba(0,0,0,0.5);
       border: 1px solid rgba(52,211,153,0.3);
       border-radius: 10px;
+    }
+
+    .dashboard-shell .key-reveal-value button,
+    .dashboard-shell .test-key-value button {
+      flex: 0 0 auto;
+      min-height: 42px;
+      padding: 0 16px;
     }
 
     .dashboard-shell .key-list {
@@ -686,15 +767,25 @@ export function renderDashboardTheme(): string {
     .dashboard-shell .key-row-actions {
       display: flex;
       flex: 0 0 auto;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-end;
       gap: 8px;
     }
 
+    .dashboard-shell .key-rotate,
+    .dashboard-shell .key-revoke,
+    .dashboard-shell .key-delete {
+      min-height: 38px;
+      padding: 0 14px;
+      border-radius: 10px;
+      font-weight: 750;
+    }
+
     .dashboard-shell .key-rotate {
-      min-height: 36px;
       color: #d6ccff;
       background: rgba(124,58,237,0.16);
       border: 1px solid rgba(167,139,250,0.32);
-      border-radius: 10px;
     }
 
     .dashboard-shell .key-rotate:hover {
@@ -704,11 +795,9 @@ export function renderDashboardTheme(): string {
     }
 
     .dashboard-shell .key-revoke {
-      min-height: 36px;
       color: #fca5a5;
       background: rgba(220,38,38,0.12);
       border: 1px solid rgba(248,113,113,0.3);
-      border-radius: 10px;
     }
 
     .dashboard-shell .key-revoke:hover {
@@ -718,11 +807,9 @@ export function renderDashboardTheme(): string {
     }
 
     .dashboard-shell .key-delete {
-      min-height: 36px;
       color: #e5e7eb;
       background: rgba(255,255,255,0.06);
       border: 1px solid rgba(255,255,255,0.16);
-      border-radius: 10px;
     }
 
     .dashboard-shell .key-delete:hover {
@@ -783,20 +870,41 @@ export function renderDashboardTheme(): string {
 
       .dashboard-shell .key-row-actions {
         width: 100%;
+        justify-content: stretch;
       }
 
       .dashboard-shell .key-row-actions button {
         flex: 1 1 auto;
+        min-width: 0;
+        padding: 0 12px;
       }
 
       .dashboard-shell .key-reveal-value,
       .dashboard-shell .test-key-value {
         flex-direction: column;
+        align-items: stretch;
+      }
+
+      .dashboard-shell .key-reveal-value code,
+      .dashboard-shell .test-key-value code {
+        width: 100%;
+        max-width: 100%;
+        white-space: pre-wrap;
+        word-break: break-all;
       }
 
       .dashboard-shell .key-reveal-value button,
       .dashboard-shell .test-key-value button {
         width: 100%;
+        padding: 0 16px;
+      }
+
+      .dashboard-shell .panel,
+      .dashboard-shell .key-manager,
+      .dashboard-shell .key-reveal,
+      .dashboard-shell .test-key-panel {
+        max-width: 100%;
+        overflow-x: hidden;
       }
 
       .dashboard-mobile-bar {
@@ -813,10 +921,11 @@ export function renderDashboardTheme(): string {
         backdrop-filter: blur(14px);
       }
 
-      .dashboard-mobile-bar .brand-logo img {
-        height: 56px;
+      .dashboard-mobile-bar .brand-logo img,
+      .dashboard-mobile-bar .dashboard-brand-logo-img {
+        height: 48px;
         width: auto;
-        max-width: min(220px, 58vw);
+        max-width: min(180px, 58vw);
         object-fit: contain;
       }
 

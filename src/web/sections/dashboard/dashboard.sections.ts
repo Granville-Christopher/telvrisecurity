@@ -21,11 +21,13 @@ export function renderDashboardSections(model: DashboardViewModel): string {
   return `
     <main class="dashboard-shell" data-dashboard-shell>
       <header class="dashboard-mobile-bar">
-        <a class="brand brand-logo inline-flex shrink-0 items-center" href="/" aria-label="Telvri Security home">
+        <a class="brand brand-logo dashboard-brand-logo inline-flex shrink-0 items-center" href="/" aria-label="Telvri Security home">
           <img
-            src="/media/logo/telvriwhite.png"
+            src="/media/logo/telvriwhite.png?v=4"
             alt="Telvri Security"
-            class="block h-14 w-auto max-w-[min(220px,58vw)] object-contain"
+            width="180"
+            height="56"
+            class="dashboard-brand-logo-img"
           />
         </a>
         <button

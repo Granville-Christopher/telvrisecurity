@@ -1,6 +1,8 @@
 export function renderAuthStyles(): string {
   return `
             .auth-shell {
+              display: flex;
+              flex-direction: column;
               min-height: 100vh;
               color: var(--ink);
               background:
@@ -14,15 +16,22 @@ export function renderAuthStyles(): string {
               align-items: center;
               justify-content: space-between;
               gap: 20px;
-              max-width: 1180px;
-              margin: 0 auto;
-              padding: 24px 32px 8px;
+              width: 100%;
+              margin: 0;
+              padding: 20px clamp(24px, 4vw, 56px) 8px;
+            }
+
+            .auth-brand {
+              flex: 0 0 auto;
             }
 
             .auth-header-links {
               display: flex;
+              flex: 0 0 auto;
               align-items: center;
+              justify-content: flex-end;
               gap: 18px;
+              margin-left: auto;
               font-size: 0.9rem;
               font-weight: 700;
             }
@@ -36,8 +45,10 @@ export function renderAuthStyles(): string {
             }
 
             .auth-page {
+              flex: 1 1 auto;
               display: grid;
               place-items: center;
+              width: 100%;
               padding: 24px 32px 56px;
             }
 
@@ -46,7 +57,9 @@ export function renderAuthStyles(): string {
               grid-template-columns: minmax(0, 1fr) minmax(360px, 440px);
               gap: 40px;
               align-items: center;
+              justify-items: stretch;
               width: min(100%, 1180px);
+              margin: 0 auto;
             }
 
             .auth-page-intro .eyebrow {
@@ -262,7 +275,11 @@ export function renderAuthStyles(): string {
             }
 
             @media (max-width: 860px) {
-              .auth-header,
+              .auth-header {
+                padding-left: 18px;
+                padding-right: 18px;
+              }
+
               .auth-page {
                 padding-left: 18px;
                 padding-right: 18px;

@@ -9,25 +9,34 @@ export function renderDashboardSidebarSection(user: SessionUser): string {
     <aside class="sidebar">
       <a class="brand brand-logo dashboard-brand-logo inline-flex shrink-0 items-center" href="/" aria-label="Telvri Security home">
         <img
-          src="/media/logo/telvriwhite.png"
+          src="/media/logo/telvriwhite.png?v=4"
           alt="Telvri Security"
-          class="block h-14 w-auto max-w-full object-contain"
+          width="180"
+          height="56"
+          class="dashboard-brand-logo-img"
         />
       </a>
       <nav>
         <button type="button" class="dashboard-nav-item active" data-dashboard-tab="overview">
-          <span>Overview</span><small>Status and quick start</small>
+          <span>Overview</span>
+          <small>Status and quick start</small>
         </button>
         <button type="button" class="dashboard-nav-item" data-dashboard-tab="api-keys">
-          <span>API Keys</span><small>Live and test credentials</small>
+          <span>API Keys</span>
+          <small>Live and test credentials</small>
         </button>
         <button type="button" class="dashboard-nav-item" data-dashboard-tab="sdk">
-          <span>SDK Explorer</span><small>Language examples</small>
+          <span>SDK Explorer</span>
+          <small>Language examples</small>
         </button>
         <button type="button" class="dashboard-nav-item" data-dashboard-tab="openapi">
-          <span>OpenAPI JSON</span><small>Client generation</small>
+          <span>OpenAPI JSON</span>
+          <small>Client generation</small>
         </button>
-        <a href="/docs"><span>Swagger Docs</span><small>Try requests</small></a>
+        <a href="/docs">
+          <span>Swagger Docs</span>
+          <small>Try requests</small>
+        </a>
       </nav>
       <div class="sidebar-account">
         <div class="sidebar-account-info">
