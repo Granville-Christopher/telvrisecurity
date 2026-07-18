@@ -98,6 +98,18 @@ export function renderDashboardKeyScripts(): string {
             const keyRevealValue = document.querySelector('[data-key-reveal-value]');
             const keyRevealCopy = document.querySelector('[data-key-reveal-copy]');
             const createKeyError = document.querySelector('[data-create-key-error]');
+            const regenerateTestKeyBtn = document.querySelector('[data-regenerate-test-key]');
+            const dashboardShellEl = document.querySelector('[data-dashboard-shell]');
+
+            const getCsrfToken = () => {
+              if (!(dashboardShellEl instanceof HTMLElement)) return '';
+              return dashboardShellEl.getAttribute('data-csrf-token') || '';
+            };
+
+            const csrfHeaders = (extra) => {
+              const headers = Object.assign({ 'X-CSRF-Token': getCsrfToken() }, extra || {});
+              return headers;
+            };
 
             const STATUS_LABELS = { active: 'Active', expired: 'Expired', revoked: 'Revoked' };
 
@@ -233,7 +245,7 @@ export function renderDashboardKeyScripts(): string {
                 try {
                   const response = await fetch('/dashboard/api-keys', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: csrfHeaders({ 'Content-Type': 'application/json' }),
                     body: JSON.stringify(payload),
                   });
                   if (!response.ok) {
@@ -287,7 +299,10 @@ export function renderDashboardKeyScripts(): string {
                     revokeBtn.textContent = 'Revoking...';
                     await yieldToPaint();
                     try {
-                      const response = await fetch('/dashboard/api-keys/' + encodeURIComponent(keyId) + '/revoke', { method: 'POST' });
+                      const response = await fetch('/dashboard/api-keys/' + encodeURIComponent(keyId) + '/revoke', {
+                        method: 'POST',
+                        headers: csrfHeaders(),
+                      });
                       if (!response.ok) throw new Error('revoke failed');
                       markRowRevoked(keyId);
                     } catch (error) {
@@ -316,7 +331,10 @@ export function renderDashboardKeyScripts(): string {
                     rotateBtn.textContent = 'Rotating...';
                     await yieldToPaint();
                     try {
-                      const response = await fetch('/dashboard/api-keys/' + encodeURIComponent(keyId) + '/rotate', { method: 'POST' });
+                      const response = await fetch('/dashboard/api-keys/' + encodeURIComponent(keyId) + '/rotate', {
+                        method: 'POST',
+                        headers: csrfHeaders(),
+                      });
                       if (!response.ok) throw new Error('rotate failed');
                       const data = await response.json();
                       revealNewKey(data.plainKey);
@@ -348,7 +366,10 @@ export function renderDashboardKeyScripts(): string {
                     deleteBtn.textContent = 'Deleting...';
                     await yieldToPaint();
                     try {
-                      const response = await fetch('/dashboard/api-keys/' + encodeURIComponent(keyId), { method: 'DELETE' });
+                      const response = await fetch('/dashboard/api-keys/' + encodeURIComponent(keyId), {
+                        method: 'DELETE',
+                        headers: csrfHeaders(),
+                      });
                       if (!response.ok) throw new Error('delete failed');
                       const row = keyList.querySelector('[data-key-id="' + keyId + '"]');
                       if (row) row.remove();
@@ -368,6 +389,56 @@ export function renderDashboardKeyScripts(): string {
                       });
                     }
                   })();
+                }
+              });
+            }
+
+            if (regenerateTestKeyBtn instanceof HTMLButtonElement) {
+              regenerateTestKeyBtn.addEventListener('click', async () => {
+                const accepted = await showConfirmModal(
+                  'Regenerate your development test key? The previous test key stops working immediately.',
+                  { title: 'Regenerate test key', confirmLabel: 'Regenerate', tone: 'danger' },
+                );
+                if (!accepted) return;
+                regenerateTestKeyBtn.disabled = true;
+                const originalLabel = regenerateTestKeyBtn.textContent;
+                regenerateTestKeyBtn.textContent = 'Regenerating...';
+                try {
+                  const response = await fetch('/dashboard/api-keys/test/regenerate', {
+                    method: 'POST',
+                    headers: csrfHeaders(),
+                  });
+                  if (!response.ok) throw new Error('regenerate failed');
+                  const data = await response.json();
+                  const valueNode = document.querySelector('[data-test-key-value]');
+                  const panel = document.querySelector('.test-key-panel');
+                  if (valueNode && data.plainKey) {
+                    valueNode.textContent = data.plainKey;
+                    let copyBtn = panel ? panel.querySelector('[data-test-key-copy]') : null;
+                    if (!copyBtn && panel) {
+                      copyBtn = document.createElement('button');
+                      copyBtn.type = 'button';
+                      copyBtn.className = 'button secondary';
+                      copyBtn.setAttribute('data-test-key-copy', '');
+                      copyBtn.textContent = 'Copy';
+                      const wrap = valueNode.parentElement;
+                      if (wrap) wrap.append(copyBtn);
+                    }
+                    if (copyBtn instanceof HTMLButtonElement) {
+                      copyBtn.setAttribute('data-copy-value', data.plainKey);
+                    }
+                  }
+                  await showAlertModal('Copy your new test key now. It will not be shown again after you leave this page.', {
+                    title: 'Test key regenerated',
+                  });
+                } catch (error) {
+                  await showAlertModal('Could not regenerate the test key. Please try again.', {
+                    title: 'Unable to regenerate',
+                    tone: 'danger',
+                  });
+                } finally {
+                  regenerateTestKeyBtn.disabled = false;
+                  regenerateTestKeyBtn.textContent = originalLabel || 'Regenerate test key';
                 }
               });
             }

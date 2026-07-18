@@ -45,4 +45,12 @@ export class UsersService {
   async verifyPassword(user: UserDocument, password: string): Promise<boolean> {
     return bcrypt.compare(password, user.passwordHash);
   }
+
+  async bumpSessionVersion(userId: string): Promise<number> {
+    const updated = await this.userModel
+      .findByIdAndUpdate(userId, { $inc: { sessionVersion: 1 } }, { new: true })
+      .exec();
+
+    return updated?.sessionVersion ?? 0;
+  }
 }

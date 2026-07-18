@@ -1,5 +1,5 @@
 import { ApiKeyStatus, ApiKeyView, UserTestKey } from '../../../api-keys/api-keys.service';
-import { escapeHtml } from '../../rendering/html.utils';
+import { escapeAttribute, escapeHtml } from '../../rendering/html.utils';
 
 interface ApiKeysPanelModel {
   readonly keys: ApiKeyView[];
@@ -65,6 +65,67 @@ function renderKeyRow(key: ApiKeyView): string {
   `;
 }
 
+function renderTestKeyPanel(testKey: UserTestKey): string {
+  const plainKey = testKey.plainKey;
+  const valueMarkup = plainKey
+    ? `
+        <div class="test-key-value" data-test-key-reveal>
+          <code data-test-key-value>${escapeHtml(plainKey)}</code>
+          <button
+            type="button"
+            class="button secondary"
+            data-copy-value="${escapeAttribute(plainKey)}"
+            data-test-key-copy
+          >
+            Copy
+          </button>
+        </div>
+        <p class="test-key-meta">
+          Prefix <code>rt_test_</code> · Shown once · Store it now or regenerate later
+        </p>
+      `
+    : `
+        <div class="test-key-value">
+          <code data-test-key-value>${escapeHtml(testKey.view.masked)}</code>
+        </div>
+        <p class="test-key-meta">
+          Prefix <code>rt_test_</code> · Hash stored only · Plaintext is not recoverable
+        </p>
+      `;
+
+  const warning = plainKey
+    ? `<div class="test-key-warning" role="status">
+          <strong>Copy now.</strong>
+          <span>
+            This development key is shown only once. It will not be displayed again after you leave
+            this page.
+          </span>
+        </div>`
+    : `<div class="test-key-warning" role="status">
+          <strong>Development only.</strong>
+          <span>
+            The full test key is not stored in plaintext. Regenerate if you lost it — the previous
+            key stops working immediately.
+          </span>
+        </div>`;
+
+  return `
+      <section class="panel test-key-panel">
+        <div class="panel-heading">
+          <span>Development test key</span>
+          <span class="key-status key-status-test">Test</span>
+        </div>
+        ${warning}
+        ${valueMarkup}
+        <div class="test-key-actions">
+          <button type="button" class="button secondary" data-regenerate-test-key>
+            Regenerate test key
+          </button>
+        </div>
+      </section>
+  `;
+}
+
 export function renderDashboardApiKeysSection(model: ApiKeysPanelModel): string {
   const { keys, testKey } = model;
   const keysMarkup = keys.length
@@ -79,38 +140,12 @@ export function renderDashboardApiKeysSection(model: ApiKeysPanelModel): string 
           <h1>API keys</h1>
           <p>
             Create live production keys and use your personal development test key while building.
-            Live keys are shown in full only once at creation.
+            Live and test keys are shown in full only once at creation.
           </p>
         </div>
       </header>
 
-      <section class="panel test-key-panel">
-        <div class="panel-heading">
-          <span>Development test key</span>
-          <span class="key-status key-status-test">Test</span>
-        </div>
-        <div class="test-key-warning" role="status">
-          <strong>Development only.</strong>
-          <span>
-            This key is for local and staging work. Do not use it in production. It is unique to your
-            account and can be copied anytime.
-          </span>
-        </div>
-        <div class="test-key-value">
-          <code data-test-key-value>${escapeHtml(testKey.plainKey)}</code>
-          <button
-            type="button"
-            class="button secondary"
-            data-copy-value="${escapeHtml(testKey.plainKey)}"
-            data-test-key-copy
-          >
-            Copy
-          </button>
-        </div>
-        <p class="test-key-meta">
-          Prefix <code>rt_test_</code> · Never expires · Always recoverable from this page
-        </p>
-      </section>
+      ${renderTestKeyPanel(testKey)}
 
       <section class="panel key-manager">
         <div class="panel-heading">

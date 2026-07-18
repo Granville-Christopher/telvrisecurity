@@ -3,9 +3,8 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
-import { createHash, createHmac, randomBytes } from 'crypto';
+import { createHash, randomBytes } from 'crypto';
 import { Model, Types } from 'mongoose';
 
 import { ApiKey, ApiKeyDocument, ApiKeyKind } from './schemas/api-key.schema';
@@ -41,8 +40,9 @@ export interface RotatedApiKey {
 }
 
 export interface UserTestKey {
-  readonly plainKey: string;
+  readonly plainKey: string | null;
   readonly view: ApiKeyView;
+  readonly isNewlyCreated: boolean;
 }
 
 const LIVE_KEY_PREFIX = 'rt_live_';
@@ -50,10 +50,7 @@ const TEST_KEY_PREFIX = 'rt_test_';
 
 @Injectable()
 export class ApiKeysService {
-  constructor(
-    @InjectModel(ApiKey.name) private readonly apiKeyModel: Model<ApiKeyDocument>,
-    private readonly configService: ConfigService,
-  ) {}
+  constructor(@InjectModel(ApiKey.name) private readonly apiKeyModel: Model<ApiKeyDocument>) {}
 
   async createForUser(userId: string, name: string, expiresAt: Date | null): Promise<CreatedApiKey> {
     const plainKey = this.generateLivePlainKey();
@@ -105,39 +102,34 @@ export class ApiKeysService {
     return active ? this.toView(active) : null;
   }
 
-  async ensureTestKeyForUser(userId: string): Promise<UserTestKey> {
-    const plainKey = this.deriveTestPlainKey(userId);
-    const keyHash = this.hashKey(plainKey);
-    const prefix = plainKey.slice(0, TEST_KEY_PREFIX.length + 6);
-    const last4 = plainKey.slice(-4);
+  async getOrCreateTestKeyForUser(userId: string): Promise<UserTestKey> {
     const userObjectId = new Types.ObjectId(userId);
+    const existing = await this.apiKeyModel.findOne({ userId: userObjectId, kind: 'test' }).exec();
 
-    const document = await this.apiKeyModel
-      .findOneAndUpdate(
-        { userId: userObjectId, kind: 'test' },
-        {
-          $set: {
-            name: 'Development test key',
-            keyHash,
-            prefix,
-            last4,
-            expiresAt: null,
-            revokedAt: null,
-          },
-          $setOnInsert: {
-            userId: userObjectId,
-            kind: 'test',
-          },
-        },
-        { upsert: true, new: true },
-      )
-      .exec();
-
-    if (!document) {
-      throw new BadRequestException('Could not provision a development test key.');
+    if (existing) {
+      return {
+        plainKey: null,
+        view: this.toView(existing),
+        isNewlyCreated: false,
+      };
     }
 
-    return { plainKey, view: this.toView(document) };
+    return this.createTestKeyForUser(userId);
+  }
+
+  async regenerateTestKeyForUser(userId: string): Promise<UserTestKey> {
+    const userObjectId = new Types.ObjectId(userId);
+    const existing = await this.apiKeyModel.findOne({ userId: userObjectId, kind: 'test' }).exec();
+
+    if (existing && !existing.revokedAt) {
+      existing.revokedAt = new Date();
+      await existing.save();
+      await existing.deleteOne();
+    } else if (existing) {
+      await existing.deleteOne();
+    }
+
+    return this.createTestKeyForUser(userId);
   }
 
   async revokeForUser(userId: string, keyId: string): Promise<ApiKeyView> {
@@ -192,6 +184,29 @@ export class ApiKeysService {
     };
   }
 
+  private async createTestKeyForUser(userId: string): Promise<UserTestKey> {
+    const plainKey = this.generateTestPlainKey();
+    const keyHash = this.hashKey(plainKey);
+    const prefix = plainKey.slice(0, TEST_KEY_PREFIX.length + 6);
+    const last4 = plainKey.slice(-4);
+
+    const document = await this.apiKeyModel.create({
+      userId: new Types.ObjectId(userId),
+      name: 'Development test key',
+      kind: 'test',
+      keyHash,
+      prefix,
+      last4,
+      expiresAt: null,
+    });
+
+    return {
+      plainKey,
+      view: this.toView(document),
+      isNewlyCreated: true,
+    };
+  }
+
   private async findOwnedLiveKey(userId: string, keyId: string): Promise<ApiKeyDocument> {
     if (!Types.ObjectId.isValid(keyId)) {
       throw new NotFoundException('API key not found.');
@@ -216,13 +231,8 @@ export class ApiKeysService {
     return `${LIVE_KEY_PREFIX}${randomBytes(24).toString('hex')}`;
   }
 
-  private deriveTestPlainKey(userId: string): string {
-    const secret =
-      this.configService.get<string>('JWT_SECRET') ??
-      this.configService.get<string>('MONGODB_URI') ??
-      'telvri-dev-test-secret';
-    const digest = createHmac('sha256', secret).update(`telvri-test-key:${userId}`).digest('hex');
-    return `${TEST_KEY_PREFIX}${digest.slice(0, 48)}`;
+  private generateTestPlainKey(): string {
+    return `${TEST_KEY_PREFIX}${randomBytes(24).toString('hex')}`;
   }
 
   private hashKey(plainKey: string): string {

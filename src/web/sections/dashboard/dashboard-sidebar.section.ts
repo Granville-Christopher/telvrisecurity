@@ -1,7 +1,7 @@
 import { SessionUser } from '../../../auth/session.service';
-import { escapeHtml } from '../../rendering/html.utils';
+import { escapeAttribute, escapeHtml } from '../../rendering/html.utils';
 
-export function renderDashboardSidebarSection(user: SessionUser): string {
+export function renderDashboardSidebarSection(user: SessionUser, csrfToken: string): string {
   const displayName = escapeHtml(user.fullName || user.email);
   const email = escapeHtml(user.email);
 
@@ -47,6 +47,7 @@ export function renderDashboardSidebarSection(user: SessionUser): string {
           </div>
         </div>
         <form method="post" action="/auth/logout">
+          <input type="hidden" name="_csrf" value="${escapeAttribute(csrfToken)}" />
           <button type="submit" class="dashboard-logout">Sign out</button>
         </form>
       </div>

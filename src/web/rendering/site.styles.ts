@@ -506,6 +506,10 @@ export function renderDashboardTheme(): string {
       background: rgba(167,139,250,0.16);
     }
 
+    .dashboard-shell .test-key-actions {
+      margin-top: 14px;
+    }
+
     .dashboard-shell .overview-key-panel {
       display: grid;
       gap: 14px;

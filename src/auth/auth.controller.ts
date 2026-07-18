@@ -7,6 +7,7 @@ import {
   Req,
   Res,
   UseFilters,
+  UseGuards,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -17,12 +18,16 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiTags,
+  ApiTooManyRequestsResponse,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 import { Request, Response } from 'express';
 
+import { UsersService } from '../users/users.service';
 import { AuthRedirectExceptionFilter } from './auth-redirect.exception-filter';
 import { AuthService } from './auth.service';
+import { CsrfGuard } from './csrf.guard';
 import { LoginDto } from './dto/login.dto';
 import { SignupDto } from './dto/signup.dto';
 import { SessionService } from './session.service';
@@ -35,10 +40,13 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly sessionService: SessionService,
+    private readonly usersService: UsersService,
   ) {}
 
   @Post('login')
   @HttpCode(HttpStatus.FOUND)
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
   @ApiConsumes('application/x-www-form-urlencoded', 'application/json')
   @ApiOperation({
     summary: 'Authenticate a developer account',
@@ -46,6 +54,7 @@ export class AuthController {
   })
   @ApiOkResponse({ description: 'Redirect to dashboard after successful login.' })
   @ApiUnauthorizedResponse({ description: 'Invalid credentials.' })
+  @ApiTooManyRequestsResponse({ description: 'Too many login attempts.' })
   @UsePipes(
     new ValidationPipe({
       whitelist: true,
@@ -65,6 +74,8 @@ export class AuthController {
 
   @Post('signup')
   @HttpCode(HttpStatus.FOUND)
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 5, ttl: 60_000 } })
   @ApiConsumes('application/x-www-form-urlencoded', 'application/json')
   @ApiOperation({
     summary: 'Create a developer account',
@@ -72,6 +83,7 @@ export class AuthController {
   })
   @ApiCreatedResponse({ description: 'Redirect to dashboard after successful signup.' })
   @ApiBadRequestResponse({ description: 'Validation failed or passwords do not match.' })
+  @ApiTooManyRequestsResponse({ description: 'Too many signup attempts.' })
   @UsePipes(
     new ValidationPipe({
       whitelist: true,
@@ -91,11 +103,18 @@ export class AuthController {
 
   @Post('logout')
   @HttpCode(HttpStatus.FOUND)
+  @UseGuards(CsrfGuard)
   @ApiOperation({ summary: 'Sign out of the developer dashboard' })
-  @ApiOkResponse({ description: 'Clears the session cookie and redirects to login.' })
-  logout(@Res() response: Response): void {
+  @ApiOkResponse({ description: 'Clears the session and redirects to the homepage.' })
+  async logout(@Req() request: Request, @Res() response: Response): Promise<void> {
+    const payload = this.sessionService.readSessionToken(request);
+
+    if (payload?.sub) {
+      await this.usersService.bumpSessionVersion(payload.sub);
+    }
+
     this.sessionService.clearSession(response);
-    response.redirect('/login');
+    response.redirect('/');
   }
 
   private completeAuth(request: Request, response: Response): void {

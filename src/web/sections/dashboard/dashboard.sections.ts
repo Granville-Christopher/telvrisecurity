@@ -1,5 +1,6 @@
 import { ApiKeyView, UserTestKey } from '../../../api-keys/api-keys.service';
 import { SessionUser } from '../../../auth/session.service';
+import { escapeAttribute } from '../../rendering/html.utils';
 import { buildDashboardSdkExamples } from './dashboard-sdk-examples';
 import { renderDashboardApiKeysSection } from './dashboard-api-keys.section';
 import { renderDashboardOpenapiSection } from './dashboard-openapi.section';
@@ -13,13 +14,14 @@ export interface DashboardViewModel {
   readonly activeKeyCount: number;
   readonly latestActiveKey: ApiKeyView | null;
   readonly testKey: UserTestKey;
+  readonly csrfToken: string;
 }
 
 export function renderDashboardSections(model: DashboardViewModel): string {
   const examples = buildDashboardSdkExamples();
 
   return `
-    <main class="dashboard-shell" data-dashboard-shell>
+    <main class="dashboard-shell" data-dashboard-shell data-csrf-token="${escapeAttribute(model.csrfToken)}">
       <header class="dashboard-mobile-bar">
         <a class="brand brand-logo dashboard-brand-logo inline-flex shrink-0 items-center" href="/" aria-label="Telvri Security home">
           <img
@@ -43,7 +45,7 @@ export function renderDashboardSections(model: DashboardViewModel): string {
         </button>
       </header>
       <div class="dashboard-backdrop" data-dashboard-close></div>
-      ${renderDashboardSidebarSection(model.user)}
+      ${renderDashboardSidebarSection(model.user, model.csrfToken)}
       <section class="dashboard-content">
         ${renderDashboardOverviewSection(model)}
         ${renderDashboardApiKeysSection({ keys: model.keys, testKey: model.testKey })}

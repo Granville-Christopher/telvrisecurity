@@ -2,12 +2,16 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { CookieOptions, Request, Response } from 'express';
+import { randomBytes } from 'crypto';
+
+import { CSRF_COOKIE_NAME } from './csrf.constants';
 
 export interface SessionUser {
   readonly id: string;
   readonly email: string;
   readonly fullName: string;
   readonly company?: string;
+  readonly sessionVersion: number;
 }
 
 export const SESSION_COOKIE_NAME = 'telvri_session';
@@ -19,6 +23,7 @@ interface SessionTokenPayload {
   readonly email: string;
   readonly fullName: string;
   readonly company?: string;
+  readonly sv: number;
 }
 
 @Injectable()
@@ -34,16 +39,42 @@ export class SessionService {
       email: user.email,
       fullName: user.fullName,
       company: user.company,
+      sv: user.sessionVersion,
     } satisfies SessionTokenPayload);
 
-    response.cookie(SESSION_COOKIE_NAME, token, this.cookieOptions());
+    response.cookie(SESSION_COOKIE_NAME, token, this.sessionCookieOptions());
+    this.issueCsrfCookie(response);
   }
 
   clearSession(response: Response): void {
-    response.clearCookie(SESSION_COOKIE_NAME, { ...this.cookieOptions(), maxAge: undefined });
+    response.clearCookie(SESSION_COOKIE_NAME, {
+      ...this.sessionCookieOptions(),
+      maxAge: undefined,
+    });
+    response.clearCookie(CSRF_COOKIE_NAME, {
+      ...this.csrfCookieOptions(),
+      maxAge: undefined,
+    });
   }
 
-  readSession(request: Request): SessionUser | null {
+  ensureCsrfCookie(request: Request, response: Response): string {
+    const cookies = (request as Request & { cookies?: Record<string, string> }).cookies;
+    const existing = cookies?.[CSRF_COOKIE_NAME];
+
+    if (existing) {
+      return existing;
+    }
+
+    return this.issueCsrfCookie(response);
+  }
+
+  issueCsrfCookie(response: Response): string {
+    const token = randomBytes(32).toString('hex');
+    response.cookie(CSRF_COOKIE_NAME, token, this.csrfCookieOptions());
+    return token;
+  }
+
+  readSessionToken(request: Request): SessionTokenPayload | null {
     const cookies = (request as Request & { cookies?: Record<string, string> }).cookies;
     const token = cookies?.[SESSION_COOKIE_NAME];
 
@@ -52,29 +83,36 @@ export class SessionService {
     }
 
     try {
-      const payload = this.jwtService.verify<SessionTokenPayload>(token);
-      return {
-        id: payload.sub,
-        email: payload.email,
-        fullName: payload.fullName,
-        company: payload.company,
-      };
+      return this.jwtService.verify<SessionTokenPayload>(token);
     } catch {
       return null;
     }
   }
 
-  private cookieOptions(): CookieOptions {
-    const isProduction =
-      (this.configService.get<string>('NODE_ENV') ?? process.env.NODE_ENV) === 'production' ||
-      Boolean(process.env.VERCEL);
-
+  private sessionCookieOptions(): CookieOptions {
     return {
       httpOnly: true,
-      sameSite: 'lax',
-      secure: isProduction,
+      sameSite: 'strict',
+      secure: this.isProduction(),
       path: '/',
       maxAge: SESSION_MAX_AGE_MS,
     };
+  }
+
+  private csrfCookieOptions(): CookieOptions {
+    return {
+      httpOnly: false,
+      sameSite: 'strict',
+      secure: this.isProduction(),
+      path: '/',
+      maxAge: SESSION_MAX_AGE_MS,
+    };
+  }
+
+  private isProduction(): boolean {
+    return (
+      (this.configService.get<string>('NODE_ENV') ?? process.env.NODE_ENV) === 'production' ||
+      Boolean(process.env.VERCEL)
+    );
   }
 }

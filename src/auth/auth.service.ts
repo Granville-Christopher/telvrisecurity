@@ -26,7 +26,7 @@ export class AuthService {
       throw this.unauthorized('Invalid email or password.');
     }
 
-    return this.toSessionUser(user._id.toString(), user.email, user.fullName, user.company);
+    return this.toSessionUser(user);
   }
 
   async signup(dto: SignupDto): Promise<SessionUser> {
@@ -42,7 +42,7 @@ export class AuthService {
         company: dto.company,
       });
 
-      return this.toSessionUser(user._id.toString(), user.email, user.fullName, user.company);
+      return this.toSessionUser(user);
     } catch (error) {
       if (error instanceof ConflictException) {
         throw this.badRequest('An account with this email already exists.');
@@ -52,13 +52,20 @@ export class AuthService {
     }
   }
 
-  private toSessionUser(
-    id: string,
-    email: string,
-    fullName: string,
-    company?: string,
-  ): SessionUser {
-    return { id, email, fullName, company };
+  private toSessionUser(user: {
+    _id: { toString(): string };
+    email: string;
+    fullName: string;
+    company?: string;
+    sessionVersion?: number;
+  }): SessionUser {
+    return {
+      id: user._id.toString(),
+      email: user.email,
+      fullName: user.fullName,
+      company: user.company,
+      sessionVersion: user.sessionVersion ?? 0,
+    };
   }
 
   private unauthorized(message: string): UnauthorizedException {

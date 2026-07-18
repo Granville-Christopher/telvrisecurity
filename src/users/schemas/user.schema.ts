@@ -17,6 +17,9 @@ export class User {
   @Prop({ trim: true })
   company?: string;
 
+  @Prop({ required: true, default: 0 })
+  sessionVersion!: number;
+
   createdAt!: Date;
 
   updatedAt!: Date;

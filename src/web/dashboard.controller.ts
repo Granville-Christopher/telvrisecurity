@@ -16,10 +16,12 @@ import {
 import { ApiExcludeController } from '@nestjs/swagger';
 import { Response } from 'express';
 
-import { ApiKeysService, ApiKeyView, RotatedApiKey } from '../api-keys/api-keys.service';
+import { ApiKeysService, ApiKeyView, RotatedApiKey, UserTestKey } from '../api-keys/api-keys.service';
 import { CreateApiKeyDto, resolveExpiryDate } from '../api-keys/dto/create-api-key.dto';
+import { CsrfGuard } from '../auth/csrf.guard';
 import { SessionRedirectExceptionFilter } from '../auth/session-redirect.exception-filter';
 import { RequestWithSession, SessionGuard } from '../auth/session.guard';
+import { SessionService } from '../auth/session.service';
 import { renderPage } from './rendering/page.renderer';
 import { renderDashboardSections } from './sections/dashboard/dashboard.sections';
 
@@ -28,7 +30,10 @@ import { renderDashboardSections } from './sections/dashboard/dashboard.sections
 @UseFilters(SessionRedirectExceptionFilter)
 @Controller()
 export class DashboardController {
-  constructor(private readonly apiKeysService: ApiKeysService) {}
+  constructor(
+    private readonly apiKeysService: ApiKeysService,
+    private readonly sessionService: SessionService,
+  ) {}
 
   @Get('dashboard')
   @Header('Content-Type', 'text/html; charset=utf-8')
@@ -37,10 +42,11 @@ export class DashboardController {
     @Res() response: Response,
   ): Promise<void> {
     const user = request.sessionUser!;
+    const csrfToken = this.sessionService.ensureCsrfCookie(request, response);
     const [keys, latestActiveKey, testKey] = await Promise.all([
       this.apiKeysService.listForUser(user.id),
       this.apiKeysService.getLatestActiveLiveKey(user.id),
-      this.apiKeysService.ensureTestKeyForUser(user.id),
+      this.apiKeysService.getOrCreateTestKeyForUser(user.id),
     ]);
     const activeKeyCount = keys.filter((key) => key.status === 'active').length;
 
@@ -52,7 +58,14 @@ export class DashboardController {
         canonicalPath: '/dashboard',
         noIndex: true,
       },
-      body: renderDashboardSections({ user, keys, activeKeyCount, latestActiveKey, testKey }),
+      body: renderDashboardSections({
+        user,
+        keys,
+        activeKeyCount,
+        latestActiveKey,
+        testKey,
+        csrfToken,
+      }),
     });
 
     response.send(html);
@@ -66,6 +79,7 @@ export class DashboardController {
 
   @Post('dashboard/api-keys')
   @HttpCode(HttpStatus.CREATED)
+  @UseGuards(CsrfGuard)
   async createApiKey(
     @Req() request: RequestWithSession,
     @Body() dto: CreateApiKeyDto,
@@ -82,6 +96,7 @@ export class DashboardController {
 
   @Post('dashboard/api-keys/:id/revoke')
   @HttpCode(HttpStatus.OK)
+  @UseGuards(CsrfGuard)
   async revokeApiKey(
     @Req() request: RequestWithSession,
     @Param('id') id: string,
@@ -92,6 +107,7 @@ export class DashboardController {
 
   @Post('dashboard/api-keys/:id/rotate')
   @HttpCode(HttpStatus.CREATED)
+  @UseGuards(CsrfGuard)
   async rotateApiKey(
     @Req() request: RequestWithSession,
     @Param('id') id: string,
@@ -101,10 +117,18 @@ export class DashboardController {
 
   @Delete('dashboard/api-keys/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(CsrfGuard)
   async deleteApiKey(
     @Req() request: RequestWithSession,
     @Param('id') id: string,
   ): Promise<void> {
     await this.apiKeysService.deleteForUser(request.sessionUser!.id, id);
+  }
+
+  @Post('dashboard/api-keys/test/regenerate')
+  @HttpCode(HttpStatus.CREATED)
+  @UseGuards(CsrfGuard)
+  async regenerateTestKey(@Req() request: RequestWithSession): Promise<UserTestKey> {
+    return this.apiKeysService.regenerateTestKeyForUser(request.sessionUser!.id);
   }
 }

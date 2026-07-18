@@ -3,6 +3,7 @@ import { NestFactory } from '@nestjs/core';
 import { ExpressAdapter, NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Express } from 'express';
+import helmet from 'helmet';
 import { join } from 'path';
 
 import { AppModule } from './app.module';
@@ -14,6 +15,12 @@ import cookieParser = require('cookie-parser');
 const SWAGGER_UI_DIST_PATH = join(__dirname, 'swagger-ui-dist');
 
 export async function configureNestApp(app: INestApplication): Promise<void> {
+  app.use(
+    helmet({
+      contentSecurityPolicy: false,
+      crossOriginEmbedderPolicy: false,
+    }),
+  );
   app.use(cookieParser());
 
   app.useGlobalPipes(
