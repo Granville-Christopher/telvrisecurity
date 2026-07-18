@@ -228,6 +228,58 @@ function patchGeneratedSdks(sdkDirectories = ['javascript', 'python', 'go', 'php
     writeFileSync(javascriptPackagePath, `${JSON.stringify(javascriptPackage, null, 2)}\n`);
   }
 
+  if (sdkDirectories.includes('java')) {
+    const javaRepoUrl = `https://github.com/${githubOwner}/telvri-java`;
+    const pomPath = join(sdksRoot, 'java', 'pom.xml');
+    if (existsSync(pomPath)) {
+      let pom = readFileSync(pomPath, 'utf8');
+      pom = pom
+        .replace(/<name>security<\/name>/, '<name>Telvri Security Java SDK</name>')
+        .replace(
+          /<description>OpenAPI Java<\/description>/,
+          '<description>Official Telvri Security Java SDK for SIM-swap and mobile identity checks.</description>',
+        )
+        .replace(
+          /<url>https:\/\/github\.com\/openapitools\/openapi-generator<\/url>/,
+          `<url>${javaRepoUrl}</url>`,
+        )
+        .replace(
+          /<connection>scm:git:git@github\.com:openapitools\/openapi-generator\.git<\/connection>/,
+          `<connection>scm:git:git@github.com:${githubOwner}/telvri-java.git</connection>`,
+        )
+        .replace(
+          /<developerConnection>scm:git:git@github\.com:openapitools\/openapi-generator\.git<\/developerConnection>/,
+          `<developerConnection>scm:git:git@github.com:${githubOwner}/telvri-java.git</developerConnection>`,
+        )
+        .replace(
+          /<url>https:\/\/github\.com\/openapitools\/openapi-generator<\/url>\s*<\/scm>/,
+          `<url>${javaRepoUrl}</url>\n    </scm>`,
+        )
+        .replace(/<name>Unlicense<\/name>/, '<name>MIT License</name>')
+        .replace(
+          /<url>http:\/\/unlicense\.org<\/url>/,
+          '<url>https://opensource.org/licenses/MIT</url>',
+        )
+        .replace(
+          /<name>OpenAPI-Generator Contributors<\/name>/,
+          '<name>Telvri Security</name>',
+        )
+        .replace(
+          /<email>team@openapitools\.org<\/email>/,
+          '<email>support@telvrisecurity.vercel.app</email>',
+        )
+        .replace(
+          /<organization>OpenAPITools\.org<\/organization>/,
+          '<organization>Telvri Security</organization>',
+        )
+        .replace(
+          /<organizationUrl>http:\/\/openapitools\.org<\/organizationUrl>/,
+          '<organizationUrl>https://telvrisecurity.vercel.app</organizationUrl>',
+        );
+      writeFileSync(pomPath, pom);
+    }
+  }
+
   for (const sdkDirectory of sdkDirectories) {
     const sdkPath = join(sdksRoot, sdkDirectory);
     if (existsSync(sdkPath)) {

@@ -152,12 +152,12 @@ export function renderDashboardSdkSection(examples: DashboardSdkExamples): strin
             <strong>Use Java for enterprise identity and payment risk services.</strong>
           </div>
           <div class="panel-heading compact">
-            <span>Maven coordinate</span>
+            <span>Gradle (JitPack)</span>
             <button type="button" data-copy="${mavenInstall}">Copy</button>
           </div>
-          <pre><code>${mavenInstall}</code></pre>
+          <pre><code>${escapeHtml(mavenInstall)}</code></pre>
           <div class="panel-heading compact">
-            <span>Java REST example</span>
+            <span>Java SDK example</span>
             <button type="button" data-copy="${escapeAttribute(javaExample)}">Copy</button>
           </div>
           <pre><code>${escapeHtml(javaExample)}</code></pre>

@@ -21,7 +21,7 @@ This creates or updates:
 | Go | `sdks/go` | `github.com/Granville-Christopher/telvri-go` |
 | PHP | `sdks/php` | `telvri/security` |
 | Ruby | `sdks/ruby` | `telvri_security` |
-| Java | `sdks/java` | `com.telvri:security:1.0.0` |
+| Java | `sdks/java` | `com.telvri:security` → [Granville-Christopher/telvri-java](https://github.com/Granville-Christopher/telvri-java) (JitPack) |
 | .NET | `sdks/dotnet` | `Telvri.Security` |
 
 API base URL is injected into `openapi.json` as `https://telvrisecurity.vercel.app` before generation.
@@ -69,9 +69,20 @@ gem build telvri_security.gemspec
 gem push telvri_security-1.0.0.gem
 ```
 
-### Maven Central
+### Java (JitPack / Maven Central)
 
-Publish `sdks/java` with Sonatype OSSRH credentials.
+```bash
+npm run sdk:generate:java
+# publish sdks/java to github.com/Granville-Christopher/telvri-java and tag v1.0.0
+```
+
+Install via JitPack:
+
+```gradle
+implementation 'com.github.Granville-Christopher:telvri-java:v1.0.0'
+```
+
+Maven Central (`com.telvri:security`) can be added later with Sonatype OSSRH credentials.
 
 ### NuGet
 

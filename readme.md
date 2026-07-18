@@ -120,7 +120,7 @@ HTML is **not** embedded in controllers. Each UI block lives in its own section 
 | Go | `github.com/Granville-Christopher/telvri-go` |
 | PHP | `telvri/security` |
 | Ruby | `telvri_security` |
-| Java | `com.telvri:security:1.0.0` |
+| Java | `com.github.Granville-Christopher:telvri-java` (JitPack) |
 | .NET | `Telvri.Security` |
 
 Dashboard mock key: `rt_live_test_123456789`

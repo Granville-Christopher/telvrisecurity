@@ -26,7 +26,8 @@ export function buildDashboardSdkExamples(): DashboardSdkExamples {
   const goInstall = 'go get github.com/Granville-Christopher/telvri-go@v1.0.0';
   const composerInstall = 'composer require telvri/security';
   const gemInstall = 'gem install telvri_security';
-  const mavenInstall = 'com.telvri:security:1.0.0';
+  const mavenInstall =
+    "implementation 'com.github.Granville-Christopher:telvri-java:v1.0.0'";
   const dotnetInstall = 'dotnet add package Telvri.Security';
   const curlExample = `curl -X POST ${apiBaseUrl}/v1/security/sim-check \\
   -H "Content-Type: application/json" \\
@@ -144,20 +145,23 @@ response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
 end
 
 puts response.body`;
-  const javaExample = `HttpRequest request = HttpRequest.newBuilder()
-    .uri(URI.create("${apiBaseUrl}/v1/security/sim-check"))
-    .header("Content-Type", "application/json")
-    .header("X-API-Key", System.getenv("TELVRI_API_KEY"))
-    .POST(HttpRequest.BodyPublishers.ofString("""
-        {"phoneNumber":"+2348031234569","maxAgeHours":24}
-        """))
-    .build();
+  const javaExample = `import java.math.BigDecimal;
+import com.telvri.security.api.SimSwapIntelligenceApi;
+import com.telvri.security.model.CheckSimSwapDto;
+import com.telvri.security.model.SimSwapResponseDto;
 
-HttpResponse<String> response = HttpClient
-    .newHttpClient()
-    .send(request, HttpResponse.BodyHandlers.ofString());
+SimSwapIntelligenceApi api = new SimSwapIntelligenceApi();
 
-System.out.println(response.body());`;
+CheckSimSwapDto body = new CheckSimSwapDto()
+    .phoneNumber("+2348031234569")
+    .maxAgeHours(BigDecimal.valueOf(24));
+
+SimSwapResponseDto result = api.simSwapControllerCheckSimSwap(
+    body,
+    System.getenv("TELVRI_API_KEY")
+);
+
+System.out.println(result.getSwapped() + " " + result.getProvider());`;
   const csharpExample = `using System.Net.Http.Headers;
 using System.Text;
 
