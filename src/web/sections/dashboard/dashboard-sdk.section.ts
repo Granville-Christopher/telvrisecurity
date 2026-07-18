@@ -123,7 +123,7 @@ export function renderDashboardSdkSection(examples: DashboardSdkExamples): strin
           </div>
           <pre><code>${composerInstall}</code></pre>
           <div class="panel-heading compact">
-            <span>PHP REST example</span>
+            <span>SDK example</span>
             <button type="button" data-copy="${escapeAttribute(phpExample)}">Copy</button>
           </div>
           <pre><code>${escapeHtml(phpExample)}</code></pre>
@@ -140,7 +140,7 @@ export function renderDashboardSdkSection(examples: DashboardSdkExamples): strin
           </div>
           <pre><code>${gemInstall}</code></pre>
           <div class="panel-heading compact">
-            <span>Ruby REST example</span>
+            <span>SDK example</span>
             <button type="button" data-copy="${escapeAttribute(rubyExample)}">Copy</button>
           </div>
           <pre><code>${escapeHtml(rubyExample)}</code></pre>

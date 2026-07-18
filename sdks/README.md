@@ -19,8 +19,8 @@ This creates or updates:
 | JavaScript/TypeScript | `sdks/javascript` | `@telvri/security` → [Granville-Christopher/telvri-js](https://github.com/Granville-Christopher/telvri-js) |
 | Python | `sdks/python` | `telvri-security` |
 | Go | `sdks/go` | `github.com/Granville-Christopher/telvri-go` |
-| PHP | `sdks/php` | `telvri/security` |
-| Ruby | `sdks/ruby` | `telvri_security` |
+| PHP | `sdks/php` | `telvri/security` → [Granville-Christopher/telvri-php](https://github.com/Granville-Christopher/telvri-php) |
+| Ruby | `sdks/ruby` | `telvri_security` → [Granville-Christopher/telvri-ruby](https://github.com/Granville-Christopher/telvri-ruby) |
 | Java | `sdks/java` | `com.telvri:security` → [Granville-Christopher/telvri-java](https://github.com/Granville-Christopher/telvri-java) (JitPack) |
 | .NET | `sdks/dotnet` | `Telvri.Security` → [Granville-Christopher/telvri-dotnet](https://github.com/Granville-Christopher/telvri-dotnet) |
 
@@ -57,11 +57,36 @@ npm run sdk:generate:go
 go get github.com/Granville-Christopher/telvri-go@v1.0.0
 ```
 
-### PHP (Packagist)
+### PHP (GitHub / Packagist)
 
-Push `sdks/php` to GitHub, then register the repo on Packagist.
+```bash
+npm run sdk:generate:php
+# then publish sdks/php to github.com/Granville-Christopher/telvri-php and tag v1.0.0
+```
 
-### RubyGems
+Install from GitHub:
+
+```bash
+composer config repositories.telvri vcs https://github.com/Granville-Christopher/telvri-php
+composer require telvri/security:^1.0.0
+```
+
+Register the same repo on [Packagist](https://packagist.org) for `composer require telvri/security` without a VCS repository entry.
+
+### Ruby (GitHub / RubyGems)
+
+```bash
+npm run sdk:generate:ruby
+# then publish sdks/ruby to github.com/Granville-Christopher/telvri-ruby and tag v1.0.0
+```
+
+Install:
+
+```bash
+gem install telvri_security
+```
+
+Publish updates:
 
 ```bash
 cd sdks/ruby

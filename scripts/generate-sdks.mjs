@@ -101,6 +101,8 @@ const sdkTargets = [
       gemName: 'telvri_security',
       moduleName: 'TelvriSecurity',
       gemVersion: apiVersion,
+      gemLicense: 'MIT',
+      gemHomepage: `https://github.com/${githubOwner}/telvri-ruby`,
     },
   },
   {
@@ -189,8 +191,47 @@ function patchGeneratedSdks(sdkDirectories = ['javascript', 'python', 'go', 'php
     writeFileSync(join(sdksRoot, 'go', 'go.mod'), `module ${goModule}\n\ngo 1.22\n`);
   }
 
+  if (sdkDirectories.includes('ruby')) {
+    const rubyRepoUrl = `https://github.com/${githubOwner}/telvri-ruby`;
+    replaceInTree(join(sdksRoot, 'ruby'), /github\.com\/GIT_USER_ID\/GIT_REPO_ID/g, `${githubOwner}/telvri-ruby`);
+    const gemspecPath = join(sdksRoot, 'ruby', 'telvri_security.gemspec');
+    if (existsSync(gemspecPath)) {
+      let gemspec = readFileSync(gemspecPath, 'utf8');
+      gemspec = gemspec
+        .replace(/s\.authors\s*=\s*\[[^\]]*\]/, 's.authors     = ["Telvri Security"]')
+        .replace(/s\.email\s*=\s*\[[^\]]*\]/, 's.email       = ["support@telvrisecurity.vercel.app"]')
+        .replace(
+          /s\.homepage\s*=\s*"[^"]*"/,
+          `s.homepage    = "${rubyRepoUrl}"`,
+        )
+        .replace(
+          /s\.summary\s*=\s*"[^"]*"/,
+          's.summary     = "Official Telvri Security Ruby SDK for SIM-swap and mobile identity checks."',
+        )
+        .replace(
+          /s\.description\s*=\s*"[^"]*"/,
+          's.description = "Official Telvri Security Ruby SDK for SIM-swap and mobile identity checks."',
+        )
+        .replace(/s\.license\s*=\s*"[^"]*"/, 's.license     = "MIT"')
+        .replace(
+          /s\.metadata\s*=\s*\{\s*\}/,
+          `s.metadata    = {\n    "homepage_uri" => "${rubyRepoUrl}",\n    "source_code_uri" => "${rubyRepoUrl}",\n    "bug_tracker_uri" => "${rubyRepoUrl}/issues",\n  }`,
+        )
+        .replace(
+          /s\.files\s*=\s*`find \*`\.split\("\\n"\)\.uniq\.sort\.select \{ \|f\| !f\.empty\? \}/,
+          's.files         = Dir.glob("{lib,docs,spec}/**/*") + %w[README.md LICENSE Gemfile Rakefile telvri_security.gemspec]',
+        )
+        .replace(
+          /s\.test_files\s*=\s*`find spec\/\*`\.split\("\\n"\)/,
+          's.test_files    = Dir.glob("spec/**/*")',
+        );
+      writeFileSync(gemspecPath, gemspec);
+    }
+  }
+
   const composerPath = join(sdksRoot, 'php', 'composer.json');
   if (existsSync(composerPath)) {
+    const phpRepoUrl = `https://github.com/${githubOwner}/telvri-php`;
     const composer = JSON.parse(readFileSync(composerPath, 'utf8'));
     composer.name = 'telvri/security';
     composer.version = apiVersion;
@@ -198,6 +239,25 @@ function patchGeneratedSdks(sdkDirectories = ['javascript', 'python', 'go', 'php
       'Official Telvri Security PHP SDK for SIM-swap and mobile identity checks.';
     composer.homepage = 'https://telvrisecurity.vercel.app';
     composer.license = 'MIT';
+    composer.authors = [
+      {
+        name: 'Telvri Security',
+        homepage: 'https://telvrisecurity.vercel.app',
+      },
+    ];
+    composer.support = {
+      issues: `${phpRepoUrl}/issues`,
+      source: phpRepoUrl,
+    };
+    composer.keywords = [
+      'telvri',
+      'sim-swap',
+      'identity-security',
+      'fraud',
+      'openapi',
+      'php',
+      'sdk',
+    ];
     writeFileSync(composerPath, `${JSON.stringify(composer, null, 4)}\n`);
   }
 
@@ -348,7 +408,7 @@ function replaceInTree(directory, pattern, replacement) {
       continue;
     }
 
-    if (!/\.(go|md|sh|mod|sum|yaml|yml)$/.test(entry.name)) {
+    if (!/\.(go|md|sh|mod|sum|yaml|yml|gemspec|rb)$/.test(entry.name)) {
       continue;
     }
 

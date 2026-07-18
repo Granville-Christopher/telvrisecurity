@@ -916,7 +916,7 @@ export function renderDashboardTheme(): string {
 
       .dashboard-mobile-bar {
         position: sticky;
-        top: 16px;
+        top: 0;
         z-index: 40;
         display: flex;
         align-items: center;

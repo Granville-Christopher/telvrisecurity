@@ -24,7 +24,8 @@ export function buildDashboardSdkExamples(): DashboardSdkExamples {
   const npmInstall = 'npm install @telvri/security';
   const pipInstall = 'pip install telvri-security';
   const goInstall = 'go get github.com/Granville-Christopher/telvri-go@v1.0.0';
-  const composerInstall = 'composer require telvri/security';
+  const composerInstall =
+    'composer config repositories.telvri vcs https://github.com/Granville-Christopher/telvri-php\ncomposer require telvri/security:^1.0.0';
   const gemInstall = 'gem install telvri_security';
   const mavenInstall =
     "implementation 'com.github.Granville-Christopher:telvri-java:v1.0.0'";
@@ -109,42 +110,38 @@ func main() {
 }`;
   const phpExample = `<?php
 
-$payload = json_encode([
-    'phoneNumber' => '+2348031234569',
-    'maxAgeHours' => 24,
-]);
+require_once __DIR__ . '/vendor/autoload.php';
 
-$ch = curl_init('${apiBaseUrl}/v1/security/sim-check');
-curl_setopt_array($ch, [
-    CURLOPT_POST => true,
-    CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_HTTPHEADER => [
-        'Content-Type: application/json',
-        'X-API-Key: ' . getenv('TELVRI_API_KEY'),
-    ],
-    CURLOPT_POSTFIELDS => $payload,
-]);
+use Telvri\\Security\\Configuration;
+use Telvri\\Security\\Api\\SIMSwapIntelligenceApi;
+use Telvri\\Security\\Model\\CheckSimSwapDto;
 
-echo curl_exec($ch);
-curl_close($ch);`;
-  const rubyExample = `require 'json'
-require 'net/http'
-require 'uri'
+$config = Configuration::getDefaultConfiguration()
+    ->setApiKey('X-API-Key', getenv('TELVRI_API_KEY'));
 
-uri = URI('${apiBaseUrl}/v1/security/sim-check')
-request = Net::HTTP::Post.new(uri)
-request['Content-Type'] = 'application/json'
-request['X-API-Key'] = ENV.fetch('TELVRI_API_KEY')
-request.body = {
-  phoneNumber: '+2348031234569',
-  maxAgeHours: 24
-}.to_json
+$api = new SIMSwapIntelligenceApi(null, $config);
 
-response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
-  http.request(request)
+$dto = (new CheckSimSwapDto())
+    ->setPhoneNumber('+2348031234569')
+    ->setMaxAgeHours(24);
+
+$result = $api->simSwapControllerCheckSimSwap($dto);
+
+echo $result->getSwapped() . ' ' . $result->getProvider();`;
+  const rubyExample = `require 'telvri_security'
+
+TelvriSecurity.configure do |config|
+  config.api_key['X-API-Key'] = ENV.fetch('TELVRI_API_KEY')
 end
 
-puts response.body`;
+api = TelvriSecurity::SIMSwapIntelligenceApi.new
+dto = TelvriSecurity::CheckSimSwapDto.new(
+  phone_number: '+2348031234569',
+  max_age_hours: 24
+)
+
+result = api.sim_swap_controller_check_sim_swap(dto)
+puts "#{result.swapped} #{result.provider}"`;
   const javaExample = `import java.math.BigDecimal;
 import com.telvri.security.api.SimSwapIntelligenceApi;
 import com.telvri.security.model.CheckSimSwapDto;
